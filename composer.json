@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4" : {
-            "Railken\\LaraOre\\" : "src/"
+            "Railken\\LaraOre\\Support\\" : "src/"
         }
     },
     "autoload-dev": {
