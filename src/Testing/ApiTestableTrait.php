@@ -21,7 +21,7 @@ trait ApiTestableTrait
 
         # POST /
         $response = $this->post($url, $parameters->toArray());
-        $this->assertOrPrint($response, 200);
+        $this->assertOrPrint($response, 201);
 
         $resource = json_decode($response->getContent())->resource;
 
@@ -46,7 +46,7 @@ trait ApiTestableTrait
 
         # DELETE /id
         $response = $this->delete($url . "/". $resource->id);
-        $this->assertOrPrint($response, 200);
+        $this->assertOrPrint($response, 204);
         $response = $this->get($url . "/". $resource->id);
         $this->assertOrPrint($response, 404);
     }
