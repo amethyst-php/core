@@ -28,11 +28,11 @@ trait ApiTestableTrait
         foreach ($check as $key => $parameter) {
             $p = $resource->$key;
 
-            if (is_object($p)) {
-                $p = (array)$p;
+            if (is_object($p) || is_array($p)) {
+                $this->assertEquals(json_encode($parameter), json_encode($p));
+            } else {
+                $this->assertEquals($parameter, $p);
             }
-
-            $this->assertEquals($parameter, $p);
         }
         
         # GET /id
