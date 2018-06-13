@@ -2,6 +2,8 @@
 
 namespace Railken\LaraOre\Support\Testing;
 
+use Illuminate\Support\Facades\Config;
+
 trait ApiTestableTrait
 {
     public function commonTest($url, $parameters, $check = null)
@@ -58,5 +60,19 @@ trait ApiTestableTrait
         }
 
         $response->assertStatus($code);
+    }
+
+    public function signIn()
+    {
+        $response = $this->post(Config::get('ore.api.router.prefix').'/sign-in', [
+            'username' => 'admin@admin.com',
+            'password' => 'vercingetorige',
+        ]);
+
+        $access_token = json_decode($response->getContent())->data->access_token;
+
+        $this->withHeaders(['Authorization' => 'Bearer '.$access_token]);
+
+        return $response;
     }
 }
