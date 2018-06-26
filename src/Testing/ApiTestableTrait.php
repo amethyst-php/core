@@ -9,34 +9,33 @@ trait ApiTestableTrait
         if (!$check) {
             $check = $parameters;
         }
-        
-        # GET /
+
+        // GET /
         $response = $this->get($url, []);
         $this->assertOrPrint($response, 200);
 
-        # GET /
+        // GET /
         $response = $this->get($url, ['query' => 'id eq 1']);
         $this->assertOrPrint($response, 200);
-        
 
-        # POST /
+        // POST /
         $response = $this->post($url, $parameters->toArray());
         $this->assertOrPrint($response, 201);
         $resource = json_decode($response->getContent())->resource;
-        
-        # GET /id
-        $response = $this->get($url . "/". $resource->id);
+
+        // GET /id
+        $response = $this->get($url.'/'.$resource->id);
         $this->assertOrPrint($response, 200);
 
-        # PUT /id
-        $response = $this->put($url . "/". $resource->id, $parameters->toArray());
+        // PUT /id
+        $response = $this->put($url.'/'.$resource->id, $parameters->toArray());
         $resource = json_decode($response->getContent())->resource;
         $this->assertOrPrint($response, 200);
 
-        # DELETE /id
-        $response = $this->delete($url . "/". $resource->id);
+        // DELETE /id
+        $response = $this->delete($url.'/'.$resource->id);
         $this->assertOrPrint($response, 204);
-        $response = $this->get($url . "/". $resource->id);
+        $response = $this->get($url.'/'.$resource->id);
         $this->assertOrPrint($response, 404);
     }
 
