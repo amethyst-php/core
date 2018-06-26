@@ -24,7 +24,6 @@ trait ManagerTestableTrait
 
     public function assertResultOrPrint($result, $flag = true)
     {
-
         if ($result->ok() !== $flag) {
             print_r($result->getSimpleErrors());
         }
