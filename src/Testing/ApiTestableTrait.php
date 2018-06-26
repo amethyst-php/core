@@ -24,18 +24,7 @@ trait ApiTestableTrait
         # POST /
         $response = $this->post($url, $parameters->toArray());
         $this->assertOrPrint($response, 201);
-
         $resource = json_decode($response->getContent())->resource;
-
-        foreach ($check as $key => $parameter) {
-            $p = $resource->$key;
-
-            if (is_object($p) || is_array($p)) {
-                $this->assertEquals(json_encode($parameter), json_encode($p));
-            } else {
-                $this->assertEquals($parameter, $p);
-            }
-        }
         
         # GET /id
         $response = $this->get($url . "/". $resource->id);
