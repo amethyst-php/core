@@ -9,16 +9,15 @@ use Railken\Amethyst\Api\Support\Router;
 
 class CommonServiceProvider extends ServiceProvider
 {
-
     /**
-     * Array of config files
+     * Array of config files.
      *
      * @var array
      */
     protected $configFiles = [];
 
     /**
-     * Get current directory
+     * Get current directory.
      *
      * @return string
      */
@@ -49,34 +48,30 @@ class CommonServiceProvider extends ServiceProvider
     }
 
     /**
-     * Load configs-
+     * Load configs-.
      */
     public function loadConfigs()
     {
         $directory = $this->getDirectory().'/../../config/*';
 
         foreach (glob($directory) as $file) {
-
             $this->publishes([basename($file) => config_path(basename($file))], 'config');
-            $this->mergeConfigFrom($file, basename($file, ".php"));
+            $this->mergeConfigFrom($file, basename($file, '.php'));
             $this->configFiles[] = $file;
         }
     }
 
     /**
-     * Load routes based on configs
+     * Load routes based on configs.
      */
     public function loadRoutes()
-    {   
-
+    {
         foreach ($this->configFiles as $file) {
-            $index = basename($file, ".php");
-            foreach (Config::get($index.".http") as $groupName => $group) {
+            $index = basename($file, '.php');
+            foreach (Config::get($index.'.http') as $groupName => $group) {
                 foreach ($group as $configName => $config) {
-
                     if (Arr::get($config, 'enabled')) {
                         Router::group($groupName, Arr::get($config, 'router'), function ($router) use ($config) {
-
                             $controller = Arr::get($config, 'controller');
 
                             $reflection = new \ReflectionClass($controller);
@@ -100,12 +95,10 @@ class CommonServiceProvider extends ServiceProvider
                             if ($reflection->hasMethod('show')) {
                                 $router->get('/{id}', ['uses' => $controller.'@show']);
                             }
-
                         });
                     }
                 }
             }
-
         }
     }
 }
