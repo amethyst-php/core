@@ -1,6 +1,6 @@
 <?php
 
-namespace Railken\LaraOre\Support\Tests;
+namespace Railken\Amethyst\Tests;
 
 abstract class BaseTest extends \Orchestra\Testbench\TestCase
 {
