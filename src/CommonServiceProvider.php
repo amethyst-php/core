@@ -9,21 +9,32 @@ use Railken\Amethyst\Api\Support\Router;
 
 class CommonServiceProvider extends ServiceProvider
 {
+
     /**
-     * Config file.
+     * Array of config files
      *
-     * @var string
+     * @var array
      */
-    protected $config;
+    protected $configFiles = [];
+
+    /**
+     * Get current directory
+     *
+     * @return string
+     */
+    public function getDirectory()
+    {
+        $reflector = new \ReflectionClass($this);
+
+        return dirname($reflector->getFileName());
+    }
 
     /**
      * Bootstrap any application services.
      */
     public function boot()
     {
-        $this->publishes([__DIR__.'/../config/'.$this->config.'.php' => config_path(''.$this->config.'.php')], 'config');
-
-        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        $this->loadMigrationsFrom($this->getDirectory().'/../../database/migrations');
         $this->loadRoutes();
     }
 
@@ -32,28 +43,69 @@ class CommonServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->loadConfigs();
         $this->app->register(\Railken\Lem\Providers\ManagerServiceProvider::class);
         $this->app->register(\Railken\Amethyst\ApiServiceProvider::class);
-        $this->mergeConfigFrom(__DIR__.'/../config/'.$this->config.'.php', ''.$this->config.'');
     }
 
     /**
-     * Load routes.
+     * Load configs-
+     */
+    public function loadConfigs()
+    {
+        $directory = $this->getDirectory().'/../../config/*';
+
+        foreach (glob($directory) as $file) {
+
+            $this->publishes([basename($file) => config_path(basename($file))], 'config');
+            $this->mergeConfigFrom($file, basename($file, ".php"));
+            $this->configFiles[] = $file;
+        }
+    }
+
+    /**
+     * Load routes based on configs
      */
     public function loadRoutes()
-    {
-        $config = Config::get($this->config.'.http.admin');
+    {   
 
-        if (Arr::get($config, 'enabled')) {
-            Router::group('admin', Arr::get($config, 'router'), function ($router) use ($config) {
-                $controller = Arr::get($config, 'controller');
+        foreach ($this->configFiles as $file) {
+            $index = basename($file, ".php");
+            foreach (Config::get($index.".http") as $groupName => $group) {
+                foreach ($group as $configName => $config) {
 
-                $router->get('/', ['uses' => $controller.'@index']);
-                $router->post('/', ['uses' => $controller.'@create']);
-                $router->put('/{id}', ['uses' => $controller.'@update']);
-                $router->delete('/{id}', ['uses' => $controller.'@remove']);
-                $router->get('/{id}', ['uses' => $controller.'@show']);
-            });
+                    if (Arr::get($config, 'enabled')) {
+                        Router::group($groupName, Arr::get($config, 'router'), function ($router) use ($config) {
+
+                            $controller = Arr::get($config, 'controller');
+
+                            $reflection = new \ReflectionClass($controller);
+
+                            if ($reflection->hasMethod('index')) {
+                                $router->get('/', ['uses' => $controller.'@index']);
+                            }
+
+                            if ($reflection->hasMethod('create')) {
+                                $router->post('/', ['uses' => $controller.'@create']);
+                            }
+
+                            if ($reflection->hasMethod('update')) {
+                                $router->put('/{id}', ['uses' => $controller.'@update']);
+                            }
+
+                            if ($reflection->hasMethod('remove')) {
+                                $router->delete('/{id}', ['uses' => $controller.'@remove']);
+                            }
+
+                            if ($reflection->hasMethod('show')) {
+                                $router->get('/{id}', ['uses' => $controller.'@show']);
+                            }
+
+                        });
+                    }
+                }
+            }
+
         }
     }
 }
