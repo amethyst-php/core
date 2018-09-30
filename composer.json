@@ -5,8 +5,8 @@
     "require": {
         "php": ">=7.1",
         "railken/bag": "^1.2",
-        "railken/lem": "3.2.*",
-        "railken/amethyst-api": "0.1.*"
+        "railken/lem": "^3.2",
+        "railken/amethyst-api": "^0.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~7.1",
