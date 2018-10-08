@@ -77,23 +77,23 @@ class CommonServiceProvider extends ServiceProvider
                             $reflection = new \ReflectionClass($controller);
 
                             if ($reflection->hasMethod('index')) {
-                                $router->get('/', ['uses' => $controller.'@index']);
+                                $router->get('/', ['as' => 'index', 'uses' => $controller.'@index']);
                             }
 
                             if ($reflection->hasMethod('create')) {
-                                $router->post('/', ['uses' => $controller.'@create']);
+                                $router->post('/', ['as' => 'create', 'uses' => $controller.'@create']);
                             }
 
                             if ($reflection->hasMethod('update')) {
-                                $router->put('/{id}', ['uses' => $controller.'@update']);
+                                $router->put('/{id}', ['as' => 'update', 'uses' => $controller.'@update']);
                             }
 
                             if ($reflection->hasMethod('remove')) {
-                                $router->delete('/{id}', ['uses' => $controller.'@remove']);
+                                $router->delete('/{id}', ['as' => 'remove', 'uses' => $controller.'@remove']);
                             }
 
                             if ($reflection->hasMethod('show')) {
-                                $router->get('/{id}', ['uses' => $controller.'@show']);
+                                $router->get('/{id}', ['as' => 'show', 'uses' => $controller.'@show']);
                             }
                         });
                     }
