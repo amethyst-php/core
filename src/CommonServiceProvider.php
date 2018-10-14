@@ -55,7 +55,7 @@ class CommonServiceProvider extends ServiceProvider
         $directory = $this->getDirectory().'/../../config/*';
 
         foreach (glob($directory) as $file) {
-            $this->publishes([basename($file) => config_path(basename($file))], 'config');
+            $this->publishes([$file => config_path(basename($file))], 'config');
             $this->mergeConfigFrom($file, basename($file, '.php'));
             $this->configFiles[] = $file;
         }
