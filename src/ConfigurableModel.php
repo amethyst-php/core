@@ -69,6 +69,10 @@ trait ConfigurableModel
                 return 'object';
             }
 
+            if ($attribute instanceof Attributes\ArrayAttribute) {
+                return 'array';
+            }
+            
             if ($attribute instanceof Attributes\BooleanAttribute) {
                 return 'boolean';
             }
