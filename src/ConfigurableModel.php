@@ -15,7 +15,7 @@ trait ConfigurableModel
      */
     public function ini($config)
     {
-        $this->table = Config::get($config.'.table', 'barabba');
+        $this->table = Config::get($config.'.table');
 
         $classSchema = Config::get($config.'.schema');
         $schema = new $classSchema();
