@@ -72,7 +72,7 @@ trait ConfigurableModel
             if ($attribute instanceof Attributes\ArrayAttribute) {
                 return 'array';
             }
-            
+
             if ($attribute instanceof Attributes\BooleanAttribute) {
                 return 'boolean';
             }

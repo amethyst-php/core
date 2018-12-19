@@ -2,6 +2,7 @@
 
 namespace Railken\Amethyst\Common;
 
+use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
@@ -57,7 +58,6 @@ class CommonServiceProvider extends ServiceProvider
         foreach (glob($directory) as $file) {
             $this->publishes([$file => config_path(basename($file))], 'config');
             $this->mergeConfigFrom($file, basename($file, '.php'));
-            $this->configFiles[] = $file;
         }
     }
 
@@ -66,37 +66,39 @@ class CommonServiceProvider extends ServiceProvider
      */
     public function loadRoutes()
     {
-        foreach ($this->configFiles as $file) {
-            $index = basename($file, '.php');
-            foreach (Config::get($index.'.http') as $groupName => $group) {
-                foreach ($group as $configName => $config) {
-                    if (Arr::get($config, 'enabled')) {
-                        Router::group($groupName, Arr::get($config, 'router'), function ($router) use ($config) {
-                            $controller = Arr::get($config, 'controller');
+        $inflector = new Inflector();
 
-                            $reflection = new \ReflectionClass($controller);
+        $reflection = new \ReflectionClass($this);
+        $packageName = $inflector->tableize(str_replace("ServiceProvider", "", $reflection->getShortName()));
+        
+        foreach (Config::get('amethyst.'.$packageName.'.http') as $groupName => $group) {
+            foreach ($group as $configName => $config) {
+                if (Arr::get($config, 'enabled')) {
+                    Router::group($groupName, Arr::get($config, 'router'), function ($router) use ($config) {
+                        $controller = Arr::get($config, 'controller');
 
-                            if ($reflection->hasMethod('index')) {
-                                $router->get('/', ['as' => 'index', 'uses' => $controller.'@index']);
-                            }
+                        $reflection = new \ReflectionClass($controller);
 
-                            if ($reflection->hasMethod('create')) {
-                                $router->post('/', ['as' => 'create', 'uses' => $controller.'@create']);
-                            }
+                        if ($reflection->hasMethod('index')) {
+                            $router->get('/', ['as' => 'index', 'uses' => $controller.'@index']);
+                        }
 
-                            if ($reflection->hasMethod('update')) {
-                                $router->put('/{id}', ['as' => 'update', 'uses' => $controller.'@update']);
-                            }
+                        if ($reflection->hasMethod('create')) {
+                            $router->post('/', ['as' => 'create', 'uses' => $controller.'@create']);
+                        }
 
-                            if ($reflection->hasMethod('remove')) {
-                                $router->delete('/{id}', ['as' => 'remove', 'uses' => $controller.'@remove']);
-                            }
+                        if ($reflection->hasMethod('update')) {
+                            $router->put('/{id}', ['as' => 'update', 'uses' => $controller.'@update']);
+                        }
 
-                            if ($reflection->hasMethod('show')) {
-                                $router->get('/{id}', ['as' => 'show', 'uses' => $controller.'@show']);
-                            }
-                        });
-                    }
+                        if ($reflection->hasMethod('remove')) {
+                            $router->delete('/{id}', ['as' => 'remove', 'uses' => $controller.'@remove']);
+                        }
+
+                        if ($reflection->hasMethod('show')) {
+                            $router->get('/{id}', ['as' => 'show', 'uses' => $controller.'@show']);
+                        }
+                    });
                 }
             }
         }
