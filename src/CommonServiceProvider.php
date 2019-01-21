@@ -69,8 +69,8 @@ class CommonServiceProvider extends ServiceProvider
         $inflector = new Inflector();
 
         $reflection = new \ReflectionClass($this);
-        $packageName = str_replace("_", "-", $inflector->tableize(str_replace("ServiceProvider", "", $reflection->getShortName())));
-        
+        $packageName = str_replace('_', '-', $inflector->tableize(str_replace('ServiceProvider', '', $reflection->getShortName())));
+
         foreach (Config::get('amethyst.'.$packageName.'.http') as $groupName => $group) {
             foreach ($group as $configName => $config) {
                 if (Arr::get($config, 'enabled')) {
