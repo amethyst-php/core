@@ -87,6 +87,10 @@ class CommonServiceProvider extends ServiceProvider
                             $router->put('/', ['as' => 'store', 'uses' => $controller.'@store']);
                         }
 
+                        if ($reflection->hasMethod('erase')) {
+                            $router->put('/', ['as' => 'erase', 'uses' => $controller.'@erase']);
+                        }
+
                         if ($reflection->hasMethod('create')) {
                             $router->post('/', ['as' => 'create', 'uses' => $controller.'@create']);
                         }
