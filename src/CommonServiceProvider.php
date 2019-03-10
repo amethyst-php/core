@@ -46,6 +46,7 @@ class CommonServiceProvider extends ServiceProvider
         $this->loadConfigs();
         $this->app->register(\Railken\Lem\Providers\ManagerServiceProvider::class);
         $this->app->register(\Railken\Amethyst\Providers\ApiServiceProvider::class);
+        $this->app->register(\Railken\Amethyst\Documentation\GeneratorServiceProvider::class);
     }
 
     /**
