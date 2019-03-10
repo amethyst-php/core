@@ -26,7 +26,7 @@ class CommonServiceProvider extends ServiceProvider
     {
         $reflector = new \ReflectionClass($this);
 
-        return dirname($reflector->getFileName());
+        return dirname((string) $reflector->getFileName());
     }
 
     /**
