@@ -2,10 +2,10 @@
 
 namespace Railken\Amethyst\Common;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Collection;
 use Doctrine\Common\Inflector\Inflector;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Config;
 
 class Helper
 {
@@ -25,9 +25,8 @@ class Helper
     }
 
     public function findDataByModel(string $class)
-    {   
+    {
         return $this->getData()->filter(function ($data) use ($class) {
-
             return Arr::get($data, 'model') === $class;
         })->first();
     }
