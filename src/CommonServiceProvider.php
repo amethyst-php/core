@@ -36,6 +36,8 @@ class CommonServiceProvider extends ServiceProvider
     {
         $this->loadMigrationsFrom($this->getDirectory().'/../../database/migrations');
         $this->loadRoutes();
+        $this->loadTranslations();
+        $this->loadAssets();
     }
 
     /**
@@ -47,6 +49,32 @@ class CommonServiceProvider extends ServiceProvider
         $this->app->register(\Railken\Lem\Providers\ManagerServiceProvider::class);
         $this->app->register(\Railken\Amethyst\Providers\ApiServiceProvider::class);
         $this->app->register(\Railken\Amethyst\Documentation\GeneratorServiceProvider::class);
+    }
+
+    /**
+     * Load translations.
+     */
+    public function loadTranslations()
+    {
+        $directory = $this->getDirectory().'/../../resources/lang';
+
+        $this->loadTranslationsFrom($directory, 'amethyst');
+
+        $this->publishes([
+            $directory => resource_path('vendor/lang/amethyst'),
+        ], 'resources');
+    }
+
+    /**
+     * Load assets.
+     */
+    public function loadAssets()
+    {
+        $directory = $this->getDirectory().'/../../resources/assets';
+
+        $this->publishes([
+            $directory => public_path('assets/amethyst'),
+        ], 'public');
     }
 
     /**
