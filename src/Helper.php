@@ -24,6 +24,22 @@ class Helper
         return $return;
     }
 
+    public function getPackages()
+    {
+        return array_keys(Config::get('amethyst'));
+    }
+
+    public function getDataByPackageName($packageName)
+    {
+        return Collection::make(Config::get('amethyst.'.$packageName.'.data', []))
+            ->filter(function ($item) {
+                return isset($item['model']);
+            })
+            ->map(function ($item, $key) {
+                return $key;
+            });
+    }
+
     public function findDataByModel(string $class)
     {
         return $this->getData()->filter(function ($data) use ($class) {
