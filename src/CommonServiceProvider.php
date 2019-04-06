@@ -58,10 +58,10 @@ class CommonServiceProvider extends ServiceProvider
     {
         $directory = $this->getDirectory().'/../../resources/lang';
 
-        $this->loadTranslationsFrom($directory, 'amethyst');
+        $this->loadTranslationsFrom($directory, 'amethyst-'.$this->getPackageName());
 
         $this->publishes([
-            $directory => resource_path('vendor/lang/amethyst'),
+            $directory => resource_path('lang/vendor/amethyst'),
         ], 'resources');
     }
 
@@ -91,14 +91,22 @@ class CommonServiceProvider extends ServiceProvider
     }
 
     /**
+     * Return package name
+     */
+    public function getPackageName()
+    {
+        $reflection = new \ReflectionClass($this);
+        $inflector = new Inflector();
+
+        return str_replace('_', '-', $inflector->tableize(str_replace('ServiceProvider', '', $reflection->getShortName())));
+    }
+
+    /**
      * Load routes based on configs.
      */
     public function loadRoutes()
     {
-        $inflector = new Inflector();
-
-        $reflection = new \ReflectionClass($this);
-        $packageName = str_replace('_', '-', $inflector->tableize(str_replace('ServiceProvider', '', $reflection->getShortName())));
+        $packageName = $this->getPackageName();
 
         foreach (Config::get('amethyst.'.$packageName.'.http') as $groupName => $group) {
             foreach ($group as $configName => $config) {
