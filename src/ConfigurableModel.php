@@ -94,4 +94,9 @@ trait ConfigurableModel
             return $item !== null;
         })->toArray();
     }
+
+    public function getMorphName()
+    {
+        return (new Inflector())->tableize((new \ReflectionClass($this))->getShortName());
+    }
 }
