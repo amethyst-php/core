@@ -5,6 +5,7 @@ namespace Railken\Amethyst\Common;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Railken\Lem\Attributes;
+use Doctrine\Common\Inflector\Inflector;
 
 trait ConfigurableModel
 {
