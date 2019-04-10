@@ -5,8 +5,6 @@ namespace Railken\Amethyst\Common;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Railken\Lem\Attributes;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use Doctrine\Common\Inflector\Inflector;
 
 trait ConfigurableModel
 {
@@ -27,12 +25,6 @@ trait ConfigurableModel
         $this->iniFillable($attributes);
         $this->iniDates($attributes);
         $this->iniCasts($attributes);
-
-        $inflector = new Inflector();
-
-        Relation::morphMap([
-            $this->getMorphName() => get_class($this)
-        ]);
 
     }
 
