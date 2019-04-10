@@ -25,7 +25,6 @@ trait ConfigurableModel
         $this->iniFillable($attributes);
         $this->iniDates($attributes);
         $this->iniCasts($attributes);
-
     }
 
     /**
