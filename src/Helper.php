@@ -119,4 +119,17 @@ class Helper
 
         Config::push($this->getMorphConfig($data, $attribute), $alias);
     }
+
+    public function createMorphRelation($class, $method, $morphable, $relation)
+    {
+        \Illuminate\Database\Eloquent\Builder::macro($method, function () use ($class, $method, $morphable, $relation) {
+            if (app('amethyst')->validMorphRelation($method, $morphable, $this->getModel()->getMorphName())) {
+                return $this->getModel()->$relation($class, $morphable);
+            }
+
+            unset(static::$macros[$method]);
+
+            return $this->getModel()->$method();
+        });
+    }
 }
