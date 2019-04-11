@@ -90,7 +90,7 @@ class Helper
         return Collection::make(Config::get($this->getMorphConfig($data, $attribute)))->mapWithKeys(function ($item) {
             $data = $this->findDataByName($item);
 
-            return [Arr::get($data, 'model') => Arr::get($data, 'manager')];
+            return [$item => Arr::get($data, 'manager')];
         })->toArray();
     }
 
@@ -119,17 +119,13 @@ class Helper
 
         Config::push($this->getMorphConfig($data, $attribute), $alias);
     }
-
-    public function createMorphRelation($class, $method, $morphable, $relation)
+    
+    public function createMacroMorphRelation($macro, $class, $method, $morphable)
     {
-        \Illuminate\Database\Eloquent\Builder::macro($method, function () use ($class, $method, $morphable, $relation) {
-            if (app('amethyst')->validMorphRelation($method, $morphable, $this->getModel()->getMorphName())) {
-                return $this->getModel()->$relation($class, $morphable);
-            }
+        if (app('amethyst')->validMorphRelation($method, $morphable, $macro->getModel()->getMorphName())) {
+            return $macro->getModel()->morphMany($class, $morphable);
+        }
 
-            unset(static::$macros[$method]);
-
-            return $this->getModel()->$method();
-        });
+        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", $class, $method));
     }
 }
