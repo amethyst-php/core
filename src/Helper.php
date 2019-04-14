@@ -122,7 +122,7 @@ class Helper
     
     public function createMacroMorphRelation($macro, $class, $method, $morphable)
     {
-        if (app('amethyst')->validMorphRelation($method, $morphable, $macro->getModel()->getMorphName())) {
+        if (app('amethyst')->validMorphRelation((new $class)->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
             return $macro->getModel()->morphMany($class, $morphable);
         }
 
