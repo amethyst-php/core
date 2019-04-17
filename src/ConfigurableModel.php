@@ -2,13 +2,16 @@
 
 namespace Railken\Amethyst\Common;
 
+use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
+use Railken\Bag;
 use Railken\Lem\Attributes;
-use Doctrine\Common\Inflector\Inflector;
 
 trait ConfigurableModel
 {
+    public $internalAttributes;
+
     /**
      * Initialize the model by the configuration.
      *
@@ -22,6 +25,8 @@ trait ConfigurableModel
         $schema = new $classSchema();
 
         $attributes = collect(($schema)->getAttributes());
+
+        $this->internalAttributes = new Bag();
 
         $this->iniFillable($attributes);
         $this->iniDates($attributes);
@@ -98,6 +103,6 @@ trait ConfigurableModel
 
     public function getMorphName()
     {
-        return (new Inflector())->tableize((new \ReflectionClass($this))->getShortName());
+        return str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($this))->getShortName()));
     }
 }

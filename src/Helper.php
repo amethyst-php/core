@@ -119,13 +119,13 @@ class Helper
 
         Config::push($this->getMorphConfig($data, $attribute), $alias);
     }
-    
+
     public function createMacroMorphRelation($macro, $class, $method, $morphable)
     {
-        if (app('amethyst')->validMorphRelation((new $class)->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
+        if ($this->validMorphRelation((new $class())->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
             return $macro->getModel()->morphMany($class, $morphable);
         }
 
-        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", $class, $method));
+        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", get_class($macro->getModel()), $method));
     }
 }
