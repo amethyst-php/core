@@ -98,6 +98,7 @@ class Helper
     {
         $packageName = $this->findPackageNameByData($data);
 
+
         return sprintf('amethyst.%s.data.%s.attributes.%s.options', $packageName, $data, $attribute);
     }
 
@@ -107,15 +108,20 @@ class Helper
             $alias = $morphable;
         }
 
-        $dataMorphable = $this->findDataByName($morphable);
+        if (!class_exists($morphable)) {
+            $dataMorphable = $this->findDataByName($morphable);
 
-        if (!$dataMorphable) {
-            throw new \Exception(sprintf('Cannot find data from %s', $morphable));
+            if (!$dataMorphable) {
+                throw new \Exception(sprintf('Cannot find data from %s', $morphable));
+            }
+
+            $morphable = Arr::get($dataMorphable, 'model');
         }
 
         Relation::morphMap([
-            $alias => Arr::get($dataMorphable, 'model'),
+            $alias => $morphable,
         ]);
+
 
         Config::push($this->getMorphConfig($data, $attribute), $alias);
     }
