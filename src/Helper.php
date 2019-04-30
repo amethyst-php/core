@@ -72,7 +72,9 @@ class Helper
 
     public function getNameDataByModel(string $class)
     {
-        return str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($class))->getShortName()));
+        return class_exists($class)
+            ? str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($class))->getShortName()))
+            : null;
     }
 
     public function validMorphRelation(string $data, string $attribute, string $morphable)
