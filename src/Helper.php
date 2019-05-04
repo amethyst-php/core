@@ -7,9 +7,16 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Cache;
+use Railken\Lem\Contracts\AgentContract;
+use Railken\Cacheable\CacheableTrait;
+use Railken\Cacheable\CacheableContract;
 
-class Helper
+
+class Helper implements CacheableContract
 {
+    use CacheableTrait;
+    
     public function getData()
     {
         $return = Collection::make();
@@ -28,6 +35,19 @@ class Helper
     public function getPackages()
     {
         return array_keys(Config::get('amethyst'));
+    }
+
+    public function newManagerByModel(string $classModel, AgentContract $agent = null)
+    {
+        $data = $this->findDataByModelCached($classModel);
+
+        if (!$data) {
+            throw new \Exception(sprintf('Missing %s', $classModel));
+        }
+
+        $class = Arr::get($data, 'manager');
+
+        return new $class($agent);
     }
 
     public function getDataByPackageName($packageName)
@@ -90,7 +110,7 @@ class Helper
     public function getMorphRelationable(string $data, string $attribute)
     {
         return Collection::make(Config::get($this->getMorphConfig($data, $attribute)))->mapWithKeys(function ($item) {
-            $data = $this->findDataByName($item);
+            $data = $this->findDataByNameCached($item);
 
             return [$item => Arr::get($data, 'manager')];
         })->toArray();
@@ -98,7 +118,7 @@ class Helper
 
     public function getMorphConfig(string $data, string $attribute)
     {
-        $packageName = $this->findPackageNameByData($data);
+        $packageName = $this->findPackageNameByDataCached($data);
 
 
         return sprintf('amethyst.%s.data.%s.attributes.%s.options', $packageName, $data, $attribute);
@@ -110,8 +130,9 @@ class Helper
             $alias = $morphable;
         }
 
+
         if (!class_exists($morphable)) {
-            $dataMorphable = $this->findDataByName($morphable);
+            $dataMorphable = $this->findDataByNameCached($morphable);
 
             if (!$dataMorphable) {
                 throw new \Exception(sprintf('Cannot find data from %s', $morphable));
@@ -125,7 +146,7 @@ class Helper
         ]);
 
 
-        Config::push($this->getMorphConfig($data, $attribute), $alias);
+        Config::push($this->getMorphConfigCached($data, $attribute), $alias);
     }
 
     public function createMacroMorphRelation($macro, $class, $method, $morphable)

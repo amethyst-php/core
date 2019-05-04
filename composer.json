@@ -6,6 +6,7 @@
         "php": ">=7.1",
         "railken/bag": "^1.2",
         "railken/lem": "^3.2",
+        "railken/cacheable": "0.1.*",
         "railken/amethyst-api": "0.1.*",
         "doctrine/inflector": "^1.3",
         "railken/doc-amethyst": "0.1.*"
