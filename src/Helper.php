@@ -11,12 +11,18 @@ use Illuminate\Support\Facades\Cache;
 use Railken\Lem\Contracts\AgentContract;
 use Railken\Cacheable\CacheableTrait;
 use Railken\Cacheable\CacheableContract;
+use Railken\Lem\Contracts\EntityContract;
 
 
 class Helper implements CacheableContract
 {
     use CacheableTrait;
     
+    public function __construct()
+    {
+        $this->config = new Collection();
+    }
+
     public function getData()
     {
         $return = Collection::make();
@@ -24,7 +30,7 @@ class Helper implements CacheableContract
         foreach (array_keys(Config::get('amethyst')) as $config) {
             foreach (Config::get('amethyst.'.$config.'.data', []) as $nameData => $data) {
                 if (Arr::get($data, 'model')) {
-                    $return[] = $data;
+                    $return[$nameData] = $data;
                 }
             }
         }
@@ -48,6 +54,17 @@ class Helper implements CacheableContract
         $class = Arr::get($data, 'manager');
 
         return new $class($agent);
+    }
+
+    public function findManagerByName(string $name)
+    {
+        $data = $this->findDataByNameCached($name);
+
+        if (!$data) {
+            throw new \Exception(sprintf('Missing %s', $name));
+        }
+    
+        return Arr::get($data, 'manager');
     }
 
     public function getDataByPackageName($packageName)
@@ -74,6 +91,11 @@ class Helper implements CacheableContract
         }
 
         return null;
+    }
+
+    public function findMorphByModel(string $class)
+    {
+        return (new $class)->getMorphName();
     }
 
     public function findDataByModel(string $class)
@@ -104,12 +126,12 @@ class Helper implements CacheableContract
 
     public function getMorphListable(string $data, string $attribute)
     {
-        return Config::get($this->getMorphConfig($data, $attribute), []);
+        return $this->config->get($this->getMorphConfig($data, $attribute), []);
     }
 
     public function getMorphRelationable(string $data, string $attribute)
     {
-        return Collection::make(Config::get($this->getMorphConfig($data, $attribute)))->mapWithKeys(function ($item) {
+        return Collection::make($this->config->get($this->getMorphConfig($data, $attribute)))->mapWithKeys(function ($item) {
             $data = $this->findDataByNameCached($item);
 
             return [$item => Arr::get($data, 'manager')];
@@ -130,12 +152,13 @@ class Helper implements CacheableContract
             $alias = $morphable;
         }
 
-
         if (!class_exists($morphable)) {
             $dataMorphable = $this->findDataByNameCached($morphable);
 
             if (!$dataMorphable) {
-                throw new \Exception(sprintf('Cannot find data from %s', $morphable));
+                // throw new \Exception(sprintf('Cannot find data from %s', $morphable));
+
+                return null;
             }
 
             $morphable = Arr::get($dataMorphable, 'model');
@@ -145,8 +168,9 @@ class Helper implements CacheableContract
             $alias => $morphable,
         ]);
 
+        $key = $this->getMorphConfigCached($data, $attribute);
 
-        Config::push($this->getMorphConfigCached($data, $attribute), $alias);
+        $this->config->put($key, array_merge($this->config->get($key, []), [$alias]));
     }
 
     public function createMacroMorphRelation($macro, $class, $method, $morphable)
