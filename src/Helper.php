@@ -181,4 +181,13 @@ class Helper implements CacheableContract
 
         throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", get_class($macro->getModel()), $method));
     }
+
+    public function createMacroMorphOneRelation($macro, $class, $method, $morphable)
+    {
+        if ($this->validMorphRelation((new $class())->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
+            return $macro->getModel()->morphOne($class, $morphable);
+        }
+
+        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", get_class($macro->getModel()), $method));
+    }
 }
