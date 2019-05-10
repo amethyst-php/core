@@ -18,15 +18,34 @@ class CommonServiceProvider extends ServiceProvider
     protected $configFiles = [];
 
     /**
+     * Directory
+     *
+     * @param string
+     */
+    protected $directory;
+
+    /**
+     * Create a new instance
+     *
+     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     */
+    public function __construct($app)
+    {
+        $reflector = new \ReflectionClass($this);
+
+        $this->directory = dirname((string) $reflector->getFileName());
+
+        parent::__construct($app);
+    }
+
+    /**
      * Get current directory.
      *
      * @return string
      */
     public function getDirectory()
     {
-        $reflector = new \ReflectionClass($this);
-
-        return dirname((string) $reflector->getFileName());
+        return $this->directory;
     }
 
     /**
