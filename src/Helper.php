@@ -12,15 +12,19 @@ use Railken\Lem\Contracts\AgentContract;
 use Railken\Cacheable\CacheableTrait;
 use Railken\Cacheable\CacheableContract;
 use Railken\Lem\Contracts\EntityContract;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 
 class Helper implements CacheableContract
 {
     use CacheableTrait;
+
+    protected $relationer;
     
     public function __construct()
     {
         $this->config = new Collection();
+        $this->relationer = new DynamicRelationResolver();
     }
 
     public function getData()
@@ -65,6 +69,28 @@ class Helper implements CacheableContract
         }
     
         return Arr::get($data, 'manager');
+    }
+
+    public function findModelByName(string $name)
+    {
+        $data = $this->findDataByNameCached($name);
+
+        if (!$data) {
+            throw new \Exception(sprintf('Missing %s', $name));
+        }
+    
+        return Arr::get($data, 'model');
+    }
+
+    public function findModelByTable(string $table)
+    {
+        $data = $this->findDataByTableNameCached($table);
+
+        if (!$data) {
+            throw new \Exception(sprintf('Missing %s', $table));
+        }
+    
+        return Arr::get($data, 'model');
     }
 
     public function getDataByPackageName($packageName)
@@ -112,6 +138,13 @@ class Helper implements CacheableContract
         })->first();
     }
 
+    public function findDataByTableName($tableName)
+    {
+        return $this->getData()->filter(function ($data) use ($tableName) {
+            return Arr::get($data, 'table') === $tableName;
+        })->first();
+    }
+
     public function getNameDataByModel(string $class)
     {
         return class_exists($class)
@@ -146,6 +179,40 @@ class Helper implements CacheableContract
         return sprintf('amethyst.%s.data.%s.attributes.%s.options', $packageName, $data, $attribute);
     }
 
+
+    public function createRelation(string $type, string $name)
+    {
+        return DynamicRelationBuilder::make($type, $name);
+    }
+
+    public function resolve(DynamicRelationBuilder $builder)
+    {
+        return $this->relationer->resolve($builder);
+    }
+
+    public function createMorphToMany(string $name)
+    {
+        return $this->createRelation(MorphToMany::class, $name);
+    }
+
+    public function createMacroMorphRelation($macro, $class, $method, $morphable)
+    {
+        if ($this->validMorphRelation((new $class())->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
+            return $macro->getModel()->morphMany($class, $morphable);
+        }
+
+        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", get_class($macro->getModel()), $method));
+    }
+
+    public function createMacroMorphOneRelation($macro, $class, $method, $morphable)
+    {
+        if ($this->validMorphRelation((new $class())->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
+            return $macro->getModel()->morphOne($class, $morphable);
+        }
+
+        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", get_class($macro->getModel()), $method));
+    }
+
     public function pushMorphRelation(string $data, string $attribute, string $morphable, string $alias = null)
     {
         if (!$alias) {
@@ -173,21 +240,32 @@ class Helper implements CacheableContract
         $this->config->put($key, array_merge($this->config->get($key, []), [$alias]));
     }
 
-    public function createMacroMorphRelation($macro, $class, $method, $morphable)
+    public function parseScope(string $class, array $scopes)
     {
-        if ($this->validMorphRelation((new $class())->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
-            return $macro->getModel()->morphMany($class, $morphable);
+        foreach ($scopes as $k => $scope) {
+
+            $partsColumn = explode('.', $scope['column']);
+
+            if (count($partsColumn) > 1) {
+
+                try {
+                    $table = Arr::get($this->findDataByModel($class), 'table');
+
+                    if ($table === $partsColumn[0]) {
+                        $partsColumn = array_slice($partsColumn, 1);
+                    } else {
+                        $partsColumn[0] = $this->getNameDataByModel($this->findModelByTable($partsColumn[0]));
+                    }
+
+                    $scopes[$k]['column'] = implode('.', $partsColumn);
+                } catch (\Exception $e) {
+                    
+                }
+                
+            }
+                
         }
 
-        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", get_class($macro->getModel()), $method));
-    }
-
-    public function createMacroMorphOneRelation($macro, $class, $method, $morphable)
-    {
-        if ($this->validMorphRelation((new $class())->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
-            return $macro->getModel()->morphOne($class, $morphable);
-        }
-
-        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", get_class($macro->getModel()), $method));
+        return $scopes;
     }
 }
