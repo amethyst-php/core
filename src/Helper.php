@@ -82,6 +82,17 @@ class Helper implements CacheableContract
         return Arr::get($data, 'model');
     }
 
+    public function findTableByName(string $name)
+    {
+        $data = $this->findDataByNameCached($name);
+
+        if (!$data) {
+            throw new \Exception(sprintf('Missing %s', $name));
+        }
+    
+        return Arr::get($data, 'table');
+    }
+
     public function findModelByTable(string $table)
     {
         $data = $this->findDataByTableNameCached($table);
@@ -215,6 +226,10 @@ class Helper implements CacheableContract
 
     public function pushMorphRelation(string $data, string $attribute, string $morphable, string $alias = null)
     {
+        if ($this->validMorphRelation($data, $attribute, $morphable)) {
+            return false;
+        }
+        
         if (!$alias) {
             $alias = $morphable;
         }

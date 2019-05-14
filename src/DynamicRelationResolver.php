@@ -46,7 +46,7 @@ class DynamicRelationResolver
                     ->morphToMany(
                         app('amethyst')->findModelByName($relation->get('to')), 
                         $relation->get('using.name'),
-                        null,
+                        app('amethyst')->findTableByName($relation->get('using.name')),
                         $relation->get('foreignPivotKey', null), 
                         $relation->get('relatedPivotKey', null)
                     )
