@@ -14,5 +14,11 @@ class AmethystServiceProvider extends ServiceProvider
         $this->app->singleton('amethyst', function ($app) {
             return new \Railken\Amethyst\Common\Helper();
         });
+
+    }
+
+    public function boot()
+    {
+        $this->loadRoutesFrom(__DIR__."/../resources/routes.php");
     }
 }

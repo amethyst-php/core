@@ -20,26 +20,38 @@ class Helper implements CacheableContract
     use CacheableTrait;
 
     protected $relationer;
+    protected $data;
+    protected $packageByDataName;
     
     public function __construct()
     {
         $this->config = new Collection();
         $this->relationer = new DynamicRelationResolver();
+        $this->ini();
     }
 
-    public function getData()
+    public function ini()
     {
+        $this->packageByDataName = collect();
+
+        $this->data = collect();
+
         $return = Collection::make();
 
         foreach (array_keys(Config::get('amethyst')) as $config) {
             foreach (Config::get('amethyst.'.$config.'.data', []) as $nameData => $data) {
-                if (Arr::get($data, 'model')) {
-                    $return[$nameData] = $data;
-                }
+
+                $class = Arr::get($data, 'model');
+
+                $this->data[$nameData] = $data;
+                $this->packageByDataName[$nameData] = $config;
             }
         }
+    }
 
-        return $return;
+    public function getData()
+    {
+       return $this->data;
     }
 
     public function getPackages()
@@ -49,7 +61,7 @@ class Helper implements CacheableContract
 
     public function newManagerByModel(string $classModel, AgentContract $agent = null)
     {
-        $data = $this->findDataByModelCached($classModel);
+        $data = $this->findDataByModel($classModel);
 
         if (!$data) {
             throw new \Exception(sprintf('Missing %s', $classModel));
@@ -62,7 +74,7 @@ class Helper implements CacheableContract
 
     public function findManagerByName(string $name)
     {
-        $data = $this->findDataByNameCached($name);
+        $data = $this->findDataByName($name);
 
         if (!$data) {
             throw new \Exception(sprintf('Missing %s', $name));
@@ -73,7 +85,7 @@ class Helper implements CacheableContract
 
     public function findModelByName(string $name)
     {
-        $data = $this->findDataByNameCached($name);
+        $data = $this->findDataByName($name);
 
         if (!$data) {
             throw new \Exception(sprintf('Missing %s', $name));
@@ -84,7 +96,7 @@ class Helper implements CacheableContract
 
     public function findTableByName(string $name)
     {
-        $data = $this->findDataByNameCached($name);
+        $data = $this->findDataByName($name);
 
         if (!$data) {
             throw new \Exception(sprintf('Missing %s', $name));
@@ -95,7 +107,7 @@ class Helper implements CacheableContract
 
     public function findModelByTable(string $table)
     {
-        $data = $this->findDataByTableNameCached($table);
+        $data = $this->findDataByTableName($table);
 
         if (!$data) {
             throw new \Exception(sprintf('Missing %s', $table));
@@ -117,17 +129,7 @@ class Helper implements CacheableContract
 
     public function findPackageNameByData($findName)
     {
-        foreach (array_keys(Config::get('amethyst')) as $packageName) {
-            foreach (Config::get('amethyst.'.$packageName.'.data', []) as $nameData => $data) {
-                if (Arr::get($data, 'model')) {
-                    if ($nameData === $findName) {
-                        return $packageName;
-                    }
-                }
-            }
-        }
-
-        return null;
+        return Arr::get($this->packageByDataName, $findName);
     }
 
     public function findMorphByModel(string $class)
@@ -144,9 +146,7 @@ class Helper implements CacheableContract
 
     public function findDataByName(string $name)
     {
-        return $this->getData()->filter(function ($data) use ($name) {
-            return $this->getNameDataByModel(Arr::get($data, 'model')) === $name;
-        })->first();
+        return Arr::get($this->getData(), $name);
     }
 
     public function findDataByTableName($tableName)
@@ -176,7 +176,7 @@ class Helper implements CacheableContract
     public function getMorphRelationable(string $data, string $attribute)
     {
         return Collection::make($this->config->get($this->getMorphConfig($data, $attribute)))->mapWithKeys(function ($item) {
-            $data = $this->findDataByNameCached($item);
+            $data = $this->findDataByName($item);
 
             return [$item => Arr::get($data, 'manager')];
         })->toArray();
@@ -184,7 +184,7 @@ class Helper implements CacheableContract
 
     public function getMorphConfig(string $data, string $attribute)
     {
-        $packageName = $this->findPackageNameByDataCached($data);
+        $packageName = $this->findPackageNameByData($data);
 
 
         return sprintf('amethyst.%s.data.%s.attributes.%s.options', $packageName, $data, $attribute);
@@ -235,7 +235,7 @@ class Helper implements CacheableContract
         }
 
         if (!class_exists($morphable)) {
-            $dataMorphable = $this->findDataByNameCached($morphable);
+            $dataMorphable = $this->findDataByName($morphable);
 
             if (!$dataMorphable) {
                 // throw new \Exception(sprintf('Cannot find data from %s', $morphable));
@@ -250,7 +250,7 @@ class Helper implements CacheableContract
             $alias => $morphable,
         ]);
 
-        $key = $this->getMorphConfigCached($data, $attribute);
+        $key = $this->getMorphConfig($data, $attribute);
 
         $this->config->put($key, array_merge($this->config->get($key, []), [$alias]));
     }

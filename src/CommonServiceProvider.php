@@ -6,7 +6,6 @@ use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use Railken\Amethyst\Api\Support\Router;
 
 class CommonServiceProvider extends ServiceProvider
 {
@@ -53,10 +52,15 @@ class CommonServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadMigrationsFrom($this->getDirectory().'/../../database/migrations');
         $this->loadRoutes();
         $this->loadTranslations();
-        $this->loadAssets();
+
+        if ($this->app->runningInConsole()) {
+
+            $this->publishableTranslations();
+            $this->loadMigrationsFrom($this->getDirectory().'/../../database/migrations');
+            $this->publishableAssets();
+        }
     }
 
     /**
@@ -72,13 +76,11 @@ class CommonServiceProvider extends ServiceProvider
     }
 
     /**
-     * Load translations.
+     * Publishable translations.
      */
-    public function loadTranslations()
+    public function publishableTranslations()
     {
         $directory = $this->getDirectory().'/../../resources/lang';
-
-        $this->loadTranslationsFrom($directory, 'amethyst-'.$this->getPackageName());
 
         $this->publishes([
             $directory => resource_path('lang/vendor/amethyst'),
@@ -86,9 +88,19 @@ class CommonServiceProvider extends ServiceProvider
     }
 
     /**
+     * Load translations.
+     */
+    public function loadTranslations()
+    {
+        $directory = $this->getDirectory().'/../../resources/lang';
+
+        $this->loadTranslationsFrom($directory, 'amethyst-'.$this->getPackageName());
+    }
+
+    /**
      * Load assets.
      */
-    public function loadAssets()
+    public function publishableAssets()
     {
         $directory = $this->getDirectory().'/../../resources/assets';
 
@@ -126,46 +138,6 @@ class CommonServiceProvider extends ServiceProvider
      */
     public function loadRoutes()
     {
-        $packageName = $this->getPackageName();
-
-        foreach (Config::get('amethyst.'.$packageName.'.http') as $groupName => $group) {
-            foreach ($group as $configName => $config) {
-                if (Arr::get($config, 'enabled')) {
-                    Router::group($groupName, Arr::get($config, 'router'), function ($router) use ($config) {
-                        $controller = Arr::get($config, 'controller');
-
-                        $reflection = new \ReflectionClass($controller);
-
-                        if ($reflection->hasMethod('index')) {
-                            $router->get('/', ['as' => 'index', 'uses' => $controller.'@index']);
-                        }
-
-                        if ($reflection->hasMethod('store')) {
-                            $router->put('/', ['as' => 'store', 'uses' => $controller.'@store']);
-                        }
-
-                        if ($reflection->hasMethod('erase')) {
-                            $router->delete('/', ['as' => 'erase', 'uses' => $controller.'@erase']);
-                        }
-
-                        if ($reflection->hasMethod('create')) {
-                            $router->post('/', ['as' => 'create', 'uses' => $controller.'@create']);
-                        }
-
-                        if ($reflection->hasMethod('update')) {
-                            $router->put('/{id}', ['as' => 'update', 'uses' => $controller.'@update']);
-                        }
-
-                        if ($reflection->hasMethod('remove')) {
-                            $router->delete('/{id}', ['as' => 'remove', 'uses' => $controller.'@remove']);
-                        }
-
-                        if ($reflection->hasMethod('show')) {
-                            $router->get('/{id}', ['as' => 'show', 'uses' => $controller.'@show']);
-                        }
-                    });
-                }
-            }
-        }
+        // Moved.
     }
 }
