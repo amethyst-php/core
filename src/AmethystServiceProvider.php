@@ -11,10 +11,12 @@ class AmethystServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->register(\Railken\Lem\Providers\ManagerServiceProvider::class);
+        $this->app->register(\Railken\Amethyst\Providers\ApiServiceProvider::class);
+        $this->app->register(\Railken\Amethyst\Documentation\GeneratorServiceProvider::class);
         $this->app->singleton('amethyst', function ($app) {
             return new \Railken\Amethyst\Common\Helper();
         });
-
     }
 
     public function boot()

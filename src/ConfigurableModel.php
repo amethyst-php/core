@@ -11,36 +11,63 @@ use Railken\Lem\Attributes;
 trait ConfigurableModel
 {
     public $internalAttributes;
+    public static $internalInitialization;
 
     /**
      * Initialize the model by the configuration.
      *
      * @param string $config
      */
-    public function ini($config)
+    public function ini(string $config)
     {
-        $this->table = Config::get($config.'.table');
+        $this->internalAttributes = new Bag();
+
+        if (!static::$internalInitialization) {
+            static::internalInitialization($config);
+        }
+
+        $vars = static::$internalInitialization;
+
+        $this->table = $vars->get('table');
+        $this->fillable = $vars->get('fillable');
+        $this->casts = $vars->get('casts');
+        $this->dates = $vars->get('dates');
+    }
+
+    /**
+     * Initialize the model by the configuration.
+     *
+     * @param string $config
+     */
+    public static function internalInitialization(string $config)
+    {
+        $vars = new Bag();
+
+        $vars->set('table', Config::get($config.'.table'));
 
         $classSchema = Config::get($config.'.schema');
+
         $schema = new $classSchema();
 
         $attributes = collect(($schema)->getAttributes());
 
-        $this->internalAttributes = new Bag();
+        $vars->set('fillable', static::iniFillable($attributes));
+        $vars->set('dates', static::iniDates($attributes));
+        $vars->set('casts', static::iniCasts($attributes));
 
-        $this->iniFillable($attributes);
-        $this->iniDates($attributes);
-        $this->iniCasts($attributes);
+        static::$internalInitialization = $vars;
     }
 
     /**
      * Initialize fillable by attributes.
      *
      * @param Collection $attributes
+     *
+     * @return array
      */
-    public function iniFillable(Collection $attributes)
+    public static function iniFillable(Collection $attributes): array
     {
-        $this->fillable = $attributes->filter(function ($attribute) {
+        return $attributes->filter(function ($attribute) {
             return $attribute->getFillable();
         })->map(function ($attribute) {
             return $attribute->getName();
@@ -51,10 +78,12 @@ trait ConfigurableModel
      * Initialize dates by attributes.
      *
      * @param Collection $attributes
+     *
+     * @return array
      */
-    public function iniDates(Collection $attributes)
+    public static function iniDates(Collection $attributes): array
     {
-        $this->dates = $attributes->filter(function ($attribute) {
+        return $attributes->filter(function ($attribute) {
             return $attribute instanceof Attributes\DateTimeAttribute;
         })->map(function ($attribute) {
             return $attribute->getName();
@@ -65,10 +94,12 @@ trait ConfigurableModel
      * Initialize dates by attributes.
      *
      * @param Collection $attributes
+     *
+     * @return array
      */
-    public function iniCasts(Collection $attributes)
+    public static function iniCasts(Collection $attributes): array
     {
-        $this->casts = $attributes->mapWithKeys(function ($attribute) {
+        return $attributes->mapWithKeys(function ($attribute) {
             return [$attribute->getName() => $attribute];
         })->map(function ($attribute) {
             if ($attribute instanceof Attributes\ObjectAttribute) {
