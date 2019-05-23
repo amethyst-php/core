@@ -43,8 +43,10 @@ class Helper implements CacheableContract
 
                 $class = Arr::get($data, 'model');
 
-                $this->data[$nameData] = $data;
-                $this->packageByDataName[$nameData] = $config;
+                if ($class) {
+                    $this->data[$nameData] = $data;
+                    $this->packageByDataName[$nameData] = $config;
+                }
             }
         }
     }
