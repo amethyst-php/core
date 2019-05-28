@@ -236,21 +236,20 @@ class Helper implements CacheableContract
             $alias = $morphable;
         }
 
-        if (!class_exists($morphable)) {
-            $dataMorphable = $this->findDataByName($morphable);
+        $dataMorphable = $this->findDataByName($morphable);
 
-            if (!$dataMorphable) {
-                // throw new \Exception(sprintf('Cannot find data from %s', $morphable));
+        if (!$dataMorphable) {
+            // throw new \Exception(sprintf('Cannot find data from %s', $morphable));
 
-                return null;
-            }
-
-            $morphable = Arr::get($dataMorphable, 'model');
+            return null;
         }
+
+        $morphable = Arr::get($dataMorphable, 'model');
 
         Relation::morphMap([
             $alias => $morphable,
         ]);
+
 
         $key = $this->getMorphConfig($data, $attribute);
 
