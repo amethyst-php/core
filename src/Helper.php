@@ -14,7 +14,6 @@ use Railken\Cacheable\CacheableContract;
 use Railken\Lem\Contracts\EntityContract;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
-
 class Helper implements CacheableContract
 {
     use CacheableTrait;
@@ -284,4 +283,17 @@ class Helper implements CacheableContract
 
         return $scopes;
     }
+
+    public function findClasses($directory, $subclass)
+    {
+        if (!file_exists($directory)) {
+            return [];
+        }
+
+        $finder = new \Symfony\Component\Finder\Finder();
+        $iter = new \hanneskod\classtools\Iterator\ClassIterator($finder->in($directory));
+
+        return array_keys($iter->type($subclass)->where('isInstantiable')->getClassMap());
+    }
+
 }
