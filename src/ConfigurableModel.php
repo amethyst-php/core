@@ -7,11 +7,15 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Railken\Bag;
 use Railken\Lem\Attributes;
+use Railken\EloquentMapper\Mapper;
+use Illuminate\Support\Str;
 
 trait ConfigurableModel
 {
+    use \Imanghafoori\Relativity\DynamicRelations;
+
     public $internalAttributes;
-    public static $internalInitialization;
+    public static $internalInitialization = null;
 
     /**
      * Initialize the model by the configuration.
@@ -22,8 +26,10 @@ trait ConfigurableModel
     {
         $this->internalAttributes = new Bag();
 
-        if (!static::$internalInitialization) {
+        if (static::$internalInitialization === null) {
+            static::$internalInitialization = new Bag();
             static::internalInitialization($config);
+            static::defineInverseRelationships();
         }
 
         $vars = static::$internalInitialization;
@@ -32,6 +38,27 @@ trait ConfigurableModel
         $this->fillable = $vars->get('fillable');
         $this->casts = $vars->get('casts');
         $this->dates = $vars->get('dates');
+    }
+
+    /**
+     * Define automatically the inverse of all the relationships 
+     */
+    public static function defineInverseRelationships()
+    {
+        $morphName = static::getStaticMorphName();
+
+        collect(Mapper::relationsCached(static::class))->map(function ($relation, $key) use ($morphName) {
+            $related = $relation->model;
+            $methodPlural = Str::plural($morphName);
+
+            if ($relation->type === 'BelongsTo' && !method_exists($related, $methodPlural)) {
+                $related::has_many($methodPlural, static::class);
+            }
+
+            if ($relation->type === 'MorphTo' && !method_exists($related, $methodPlural)) {
+                $related::morph_many($methodPlural, static::class, $relation->key);
+            }
+        });
     }
 
     /**
@@ -134,6 +161,11 @@ trait ConfigurableModel
 
     public function getMorphName()
     {
-        return str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($this))->getShortName()));
+        return static::getStaticMorphName();
+    }
+
+    public static function getStaticMorphName()
+    {
+        return str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass(static::class))->getShortName()));
     }
 }
