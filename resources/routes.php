@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Config;
 use Railken\Amethyst\Api\Support\Router;
 
 foreach (Config::get('amethyst') as $packageName => $package) {
-    foreach (Config::get('amethyst.'.$packageName.'.http') as $groupName => $group) {
+    foreach ((array)Config::get('amethyst.'.$packageName.'.http') as $groupName => $group) {
         foreach ($group as $configName => $config) {
             if (Arr::get($config, 'enabled')) {
                 Router::group($groupName, Arr::get($config, 'router'), function ($router) use ($config) {
