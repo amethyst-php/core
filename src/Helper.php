@@ -5,6 +5,7 @@ namespace Railken\Amethyst\Common;
 use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Cache;
@@ -18,14 +19,12 @@ class Helper implements CacheableContract
 {
     use CacheableTrait;
 
-    protected $relationer;
     protected $data;
     protected $packageByDataName;
     
     public function __construct()
     {
         $this->config = new Collection();
-        $this->relationer = new DynamicRelationResolver();
         $this->ini();
     }
 
@@ -190,69 +189,30 @@ class Helper implements CacheableContract
 
         return sprintf('amethyst.%s.data.%s.attributes.%s.options', $packageName, $data, $attribute);
     }
-
-
-    public function createRelation(string $type, string $name)
+    
+    public function pushMorphRelation(string $data, string $attribute, string $morphable, string $method = null)
     {
-        return DynamicRelationBuilder::make($type, $name);
-    }
 
-    public function resolve(DynamicRelationBuilder $builder)
-    {
-        return $this->relationer->resolve($builder);
-    }
-
-    public function createMorphToMany(string $name)
-    {
-        return $this->createRelation(MorphToMany::class, $name);
-    }
-
-    public function createMacroMorphRelation($macro, $class, $method, $morphable)
-    {
-        if ($this->validMorphRelation((new $class())->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
-            return $macro->getModel()->morphMany($class, $morphable);
-        }
-
-        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", get_class($macro->getModel()), $method));
-    }
-
-    public function createMacroMorphOneRelation($macro, $class, $method, $morphable)
-    {
-        if ($this->validMorphRelation((new $class())->getMorphName(), $morphable, $macro->getModel()->getMorphName())) {
-            return $macro->getModel()->morphOne($class, $morphable);
-        }
-
-        throw new \BadMethodCallException(sprintf("Method %s:%s() doesn't exist", get_class($macro->getModel()), $method));
-    }
-
-    public function pushMorphRelation(string $data, string $attribute, string $morphable, string $alias = null)
-    {
         if ($this->validMorphRelation($data, $attribute, $morphable)) {
             return false;
-        }
-        
-        if (!$alias) {
-            $alias = $morphable;
         }
 
         $dataMorphable = $this->findDataByName($morphable);
 
-        if (!$dataMorphable) {
-            // throw new \Exception(sprintf('Cannot find data from %s', $morphable));
-
-            return null;
-        }
+        $alias = $morphable;
 
         $morphable = Arr::get($dataMorphable, 'model');
-
+        
         Relation::morphMap([
             $alias => $morphable,
         ]);
 
-
         $key = $this->getMorphConfig($data, $attribute);
 
         $this->config->put($key, array_merge($this->config->get($key, []), [$alias]));
+
+        return $morphable::morph_many($method ? $method : Str::plural($data), Arr::get($this->findDataByName($data), 'model'), $attribute);
+
     }
 
     public function parseScope(string $class, array $scopes)
