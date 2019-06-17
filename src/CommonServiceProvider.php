@@ -3,7 +3,6 @@
 namespace Railken\Amethyst\Common;
 
 use Doctrine\Common\Inflector\Inflector;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
 
@@ -17,16 +16,16 @@ class CommonServiceProvider extends ServiceProvider
     protected $configFiles = [];
 
     /**
-     * Directory
+     * Directory.
      *
      * @param string
      */
     protected $directory;
 
     /**
-     * Create a new instance
+     * Create a new instance.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
+     * @param \Illuminate\Contracts\Foundation\Application $app
      */
     public function __construct($app)
     {
@@ -56,7 +55,6 @@ class CommonServiceProvider extends ServiceProvider
         $this->loadTranslations();
 
         if ($this->app->runningInConsole()) {
-
             $this->publishableTranslations();
             $this->loadMigrationsFrom($this->getDirectory().'/../../database/migrations');
             $this->publishableAssets();

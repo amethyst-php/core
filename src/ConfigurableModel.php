@@ -2,14 +2,11 @@
 
 namespace Railken\Amethyst\Common;
 
-use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Railken\Bag;
-use Railken\Lem\Attributes;
-use Railken\EloquentMapper\Mapper;
 use Railken\EloquentMapper\Relationer;
-use Illuminate\Support\Str;
+use Railken\Lem\Attributes;
 
 trait ConfigurableModel
 {
@@ -17,7 +14,7 @@ trait ConfigurableModel
 
     public $internalAttributes;
     public static $internalInitialization = null;
-    
+
     /**
      * Initialize the model by the configuration.
      *
@@ -39,7 +36,6 @@ trait ConfigurableModel
         $this->casts = $vars->get('casts');
         $this->dates = $vars->get('dates');
     }
-
 
     /**
      * Initialize the model by the configuration.

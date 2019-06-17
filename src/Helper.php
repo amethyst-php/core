@@ -5,15 +5,12 @@ namespace Railken\Amethyst\Common;
 use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Cache;
-use Railken\Lem\Contracts\AgentContract;
-use Railken\Cacheable\CacheableTrait;
+use Illuminate\Support\Str;
 use Railken\Cacheable\CacheableContract;
-use Railken\Lem\Contracts\EntityContract;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Railken\Cacheable\CacheableTrait;
+use Railken\Lem\Contracts\AgentContract;
 
 class Helper implements CacheableContract
 {
@@ -21,7 +18,7 @@ class Helper implements CacheableContract
 
     protected $data;
     protected $packageByDataName;
-    
+
     public function __construct()
     {
         $this->config = new Collection();
@@ -38,7 +35,6 @@ class Helper implements CacheableContract
 
         foreach (array_keys(Config::get('amethyst')) as $config) {
             foreach (Config::get('amethyst.'.$config.'.data', []) as $nameData => $data) {
-
                 $class = Arr::get($data, 'model');
 
                 if ($class) {
@@ -51,7 +47,7 @@ class Helper implements CacheableContract
 
     public function getData()
     {
-       return $this->data;
+        return $this->data;
     }
 
     public function getPackages()
@@ -79,7 +75,7 @@ class Helper implements CacheableContract
         if (!$data) {
             throw new \Exception(sprintf('Missing %s', $name));
         }
-    
+
         return Arr::get($data, 'manager');
     }
 
@@ -90,7 +86,7 @@ class Helper implements CacheableContract
         if (!$data) {
             throw new \Exception(sprintf('Missing %s', $name));
         }
-    
+
         return Arr::get($data, 'model');
     }
 
@@ -101,7 +97,7 @@ class Helper implements CacheableContract
         if (!$data) {
             throw new \Exception(sprintf('Missing %s', $name));
         }
-    
+
         return Arr::get($data, 'table');
     }
 
@@ -112,7 +108,7 @@ class Helper implements CacheableContract
         if (!$data) {
             throw new \Exception(sprintf('Missing %s', $table));
         }
-    
+
         return Arr::get($data, 'model');
     }
 
@@ -134,7 +130,7 @@ class Helper implements CacheableContract
 
     public function findMorphByModel(string $class)
     {
-        return (new $class)->getMorphName();
+        return (new $class())->getMorphName();
     }
 
     public function findDataByModel(string $class)
@@ -186,15 +182,13 @@ class Helper implements CacheableContract
     {
         $packageName = $this->findPackageNameByData($data);
 
-
         return sprintf('amethyst.%s.data.%s.attributes.%s.options', $packageName, $data, $attribute);
     }
-    
 
     public function parseMorph(string $data, string $attribute, string $morphable, string $method = null)
     {
         if ($this->validMorphRelation($data, $attribute, $morphable)) {
-            return [false,false];
+            return [false, false];
         }
 
         $dataMorphable = $this->findDataByName($morphable);
@@ -202,7 +196,7 @@ class Helper implements CacheableContract
         $alias = $morphable;
 
         $morphable = Arr::get($dataMorphable, 'model');
-        
+
         Relation::morphMap([
             $alias => $morphable,
         ]);
@@ -215,31 +209,27 @@ class Helper implements CacheableContract
             $morphable,
             $method ? $method : Str::plural($data),
             Arr::get($this->findDataByName($data), 'model'),
-            $attribute
+            $attribute,
         ];
     }
 
     public function pushMorphRelation(string $data, string $attribute, string $morphable, string $method = null)
     {
-
-        list ($morphable, $method, $model, $attribute) = $this->parseMorph($data, $attribute, $morphable, $method);
+        list($morphable, $method, $model, $attribute) = $this->parseMorph($data, $attribute, $morphable, $method);
 
         if (!$method) {
             return;
         }
 
         return $morphable::morph_many($method, $model, $attribute);
-
     }
 
     public function parseScope(string $class, array $scopes)
     {
         foreach ($scopes as $k => $scope) {
-
             $partsColumn = explode('.', $scope['column']);
 
             if (count($partsColumn) > 1) {
-
                 try {
                     $table = Arr::get($this->findDataByModel($class), 'table');
 
@@ -251,11 +241,8 @@ class Helper implements CacheableContract
 
                     $scopes[$k]['column'] = implode('.', $partsColumn);
                 } catch (\Exception $e) {
-                    
                 }
-                
             }
-                
         }
 
         return $scopes;
@@ -272,5 +259,4 @@ class Helper implements CacheableContract
 
         return array_keys($iter->type($subclass)->where('isInstantiable')->getClassMap());
     }
-
 }

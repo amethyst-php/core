@@ -2,8 +2,8 @@
 
 namespace Railken\Amethyst\Common;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Arr;
+use Illuminate\Support\ServiceProvider;
 
 class AmethystServiceProvider extends ServiceProvider
 {
@@ -30,6 +30,6 @@ class AmethystServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        $this->loadRoutesFrom(__DIR__."/../resources/routes.php");
+        $this->loadRoutesFrom(__DIR__.'/../resources/routes.php');
     }
 }
