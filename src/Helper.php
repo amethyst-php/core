@@ -190,11 +190,11 @@ class Helper implements CacheableContract
         return sprintf('amethyst.%s.data.%s.attributes.%s.options', $packageName, $data, $attribute);
     }
     
-    public function pushMorphRelation(string $data, string $attribute, string $morphable, string $method = null)
-    {
 
+    public function parseMorph(string $data, string $attribute, string $morphable, string $method = null)
+    {
         if ($this->validMorphRelation($data, $attribute, $morphable)) {
-            return false;
+            return [false,false];
         }
 
         $dataMorphable = $this->findDataByName($morphable);
@@ -211,7 +211,24 @@ class Helper implements CacheableContract
 
         $this->config->put($key, array_merge($this->config->get($key, []), [$alias]));
 
-        return $morphable::morph_many($method ? $method : Str::plural($data), Arr::get($this->findDataByName($data), 'model'), $attribute);
+        return [
+            $morphable,
+            $method ? $method : Str::plural($data),
+            Arr::get($this->findDataByName($data), 'model'),
+            $attribute
+        ];
+    }
+
+    public function pushMorphRelation(string $data, string $attribute, string $morphable, string $method = null)
+    {
+
+        list ($morphable, $method, $model, $attribute) = $this->parseMorph($data, $attribute, $morphable, $method);
+
+        if (!$method) {
+            return;
+        }
+
+        return $morphable::morph_many($method, $model, $attribute);
 
     }
 
