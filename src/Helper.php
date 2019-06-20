@@ -188,7 +188,7 @@ class Helper implements CacheableContract
     public function parseMorph(string $data, string $attribute, string $morphable, string $method = null)
     {
         if ($this->validMorphRelation($data, $attribute, $morphable)) {
-            return [false, false];
+            return [false, false, false, false];
         }
 
         $dataMorphable = $this->findDataByName($morphable);
