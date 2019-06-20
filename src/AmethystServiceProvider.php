@@ -17,10 +17,6 @@ class AmethystServiceProvider extends ServiceProvider
         $this->app->register(\Railken\Amethyst\Documentation\GeneratorServiceProvider::class);
         $this->app->register(\Railken\EloquentMapper\EloquentMapperServiceProvider::class);
 
-        $this->app->singleton('amethyst', function ($app) {
-            return new \Railken\Amethyst\Common\Helper();
-        });
-
         $this->app->get('eloquent.mapper')->retriever(function () {
             return $this->app->get('amethyst')->getData()->map(function ($data) {
                 return Arr::get($data, 'model');
@@ -30,6 +26,10 @@ class AmethystServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        $this->app->singleton('amethyst', function ($app) {
+            return new \Railken\Amethyst\Common\Helper();
+        });
+
         $this->loadRoutesFrom(__DIR__.'/../resources/routes.php');
     }
 }
