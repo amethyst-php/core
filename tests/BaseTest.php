@@ -1,6 +1,6 @@
 <?php
 
-namespace Railken\Amethyst\Tests;
+namespace Amethyst\Tests;
 
 abstract class BaseTest extends \Orchestra\Testbench\TestCase
 {

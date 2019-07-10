@@ -1,6 +1,6 @@
 <?php
 
-namespace Railken\Amethyst\Common;
+namespace Amethyst\Common;
 
 use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Database\Eloquent\Relations\Relation;

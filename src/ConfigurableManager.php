@@ -1,6 +1,6 @@
 <?php
 
-namespace Railken\Amethyst\Common;
+namespace Amethyst\Common;
 
 use Illuminate\Support\Facades\Config;
 
