@@ -14,7 +14,6 @@ class AmethystServiceProvider extends ServiceProvider
     {
         $this->app->register(\Railken\Lem\Providers\ManagerServiceProvider::class);
         $this->app->register(\Amethyst\Providers\ApiServiceProvider::class);
-        $this->app->register(\Amethyst\Documentation\GeneratorServiceProvider::class);
         $this->app->register(\Railken\EloquentMapper\EloquentMapperServiceProvider::class);
 
         $this->app->get('eloquent.mapper')->retriever(function () {
