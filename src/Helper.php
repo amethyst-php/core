@@ -259,4 +259,9 @@ class Helper implements CacheableContract
 
         return array_keys($iter->type($subclass)->where('isInstantiable')->getClassMap());
     }
+
+    public function tableize($obj)
+    {
+        return str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($obj))->getShortName()));
+    }
 }
