@@ -130,7 +130,7 @@ class Helper implements CacheableContract
 
     public function findMorphByModel(string $class)
     {
-        return (new $class())->getMorphName();
+        return $this->tableize($class);
     }
 
     public function findDataByModel(string $class)
