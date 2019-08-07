@@ -2,6 +2,8 @@
 
 [![Build Status](https://img.shields.io/travis/amethyst/common/master.svg?style=flat-square)](https://travis-ci.org/amethyst/common)
 
+This is a [amethyst](https://github.com/amethyst/amethyst) package
+
 Amethyst package.
 
 # Requirements
