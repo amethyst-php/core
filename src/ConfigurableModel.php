@@ -48,17 +48,27 @@ trait ConfigurableModel
 
         $vars->set('table', Config::get($config.'.table'));
 
-        $classSchema = Config::get($config.'.schema');
-
-        $schema = new $classSchema();
-
-        $attributes = collect(($schema)->getAttributes());
+        $attributes = static::internalGetAttributes($config);
 
         $vars->set('fillable', static::iniFillable($attributes));
         $vars->set('dates', static::iniDates($attributes));
         $vars->set('casts', static::iniCasts($attributes));
 
         static::$internalInitialization = $vars;
+    }
+
+    /**
+     * Get attributes
+     *
+     * @param string $config
+     *
+     * @return Collection
+     */
+    public static function internalGetAttributes(string $config)
+    {
+        $classManager = Config::get($config.'.manager');
+
+        return collect((new $classManager())->getAttributes());
     }
 
     /**
