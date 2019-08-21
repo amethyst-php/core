@@ -216,8 +216,8 @@ class Helper implements CacheableContract
     public function pushMorphRelation(string $data, string $attribute, string $morphable, string $method = null)
     {
         list($morphable, $method, $model, $attribute) = $this->parseMorph($data, $attribute, $morphable, $method);
-
-        if (!$method) {
+        
+        if (!$morphable || $method) {
             return;
         }
 
