@@ -58,7 +58,7 @@ trait ConfigurableModel
     }
 
     /**
-     * Get attributes
+     * Get attributes.
      *
      * @param string $config
      *

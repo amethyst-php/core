@@ -1,8 +1,8 @@
 # amethyst-common
 
-[![Build Status](https://img.shields.io/travis/amethyst/common/master.svg?style=flat-square)](https://travis-ci.org/amethyst/common)
+[![Build Status](https://img.shields.io/travis/amethyst-php/common/master.svg?style=flat-square)](https://travis-ci.org/amethyst-php/common)
 
-This is a [amethyst](https://github.com/amethyst/amethyst) package
+This is a [amethyst](https://github.com/amethyst-php/amethyst) package
 
 Amethyst package.
 
