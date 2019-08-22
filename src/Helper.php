@@ -195,10 +195,16 @@ class Helper implements CacheableContract
 
         $alias = $morphable;
 
-        $morphable = Arr::get($dataMorphable, 'model');
+        $classMorphable = Arr::get($dataMorphable, 'model');
+
+        $model = Arr::get($this->findDataByName($data), 'model');
+
+        if (!$classMorphable || !$model) {
+            throw new \Exception(sprintf("Pushing a dynamic relation with a non existent data %s:%s", $data, $morphable));
+        }
 
         Relation::morphMap([
-            $alias => $morphable,
+            $alias => $classMorphable,
         ]);
 
         $key = $this->getMorphConfig($data, $attribute);
@@ -206,22 +212,22 @@ class Helper implements CacheableContract
         $this->config->put($key, array_merge($this->config->get($key, []), [$alias]));
 
         return [
-            $morphable,
+            $classMorphable,
             $method ? $method : Str::plural($data),
-            Arr::get($this->findDataByName($data), 'model'),
+            $model,
             $attribute,
         ];
     }
 
     public function pushMorphRelation(string $data, string $attribute, string $morphable, string $method = null)
     {
-        list($morphable, $method, $model, $attribute) = $this->parseMorph($data, $attribute, $morphable, $method);
+        list($class, $method, $model, $attribute) = $this->parseMorph($data, $attribute, $morphable, $method);
         
-        if (!$morphable || $method) {
+        if (!$class) {
             return;
         }
 
-        return $morphable::morph_many($method, $model, $attribute);
+        return $class::morph_many($method, $model, $attribute);
     }
 
     public function parseScope(string $class, array $scopes)
