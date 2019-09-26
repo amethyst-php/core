@@ -227,6 +227,9 @@ class Helper implements CacheableContract
             return;
         }
 
+        $inflector = new \Doctrine\Common\Inflector\Inflector;
+        $method = $inflector->camelize($method);
+
         return $class::morph_many($method, $model, $attribute);
     }
 
