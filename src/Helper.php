@@ -164,6 +164,12 @@ class Helper implements CacheableContract
         return in_array($morphable, $this->getMorphListable($data, $attribute), true);
     }
 
+    public function putMorphListable(string $data, string $attribute, string $alias)
+    {
+        $key = $this->getMorphConfig($data, $attribute);
+        $this->config->put($key, array_merge($this->config->get($key, []), [$alias]));
+    }
+
     public function getMorphListable(string $data, string $attribute)
     {
         return $this->config->get($this->getMorphConfig($data, $attribute), []);
