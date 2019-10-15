@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 use Railken\Cacheable\CacheableContract;
 use Railken\Cacheable\CacheableTrait;
 use Railken\Lem\Contracts\AgentContract;
+use Illuminate\Database\Eloquent\Model;
+use Railken\EloquentMapper\Scopes\FilterScope;
 
 class Helper implements CacheableContract
 {
@@ -43,6 +45,24 @@ class Helper implements CacheableContract
                 }
             }
         }
+    }
+
+    public function filter($query, $str, $entity, $agent)
+    {
+        $filter = new FilterScope(
+            function (Model $model) use ($agent) {
+                return $this->newManagerByModel(
+                    get_class($model), 
+                    $agent
+                )->getAttributes()
+                ->map(function ($attribute) {
+                    return $attribute->getName();
+                })->values()->toArray();
+            },
+            $str
+        );
+
+        $filter->apply($query, $entity);
     }
 
     public function getData()
