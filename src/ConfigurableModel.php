@@ -35,6 +35,7 @@ trait ConfigurableModel
         $this->fillable = $vars->get('fillable');
         $this->casts = $vars->get('casts');
         $this->dates = $vars->get('dates');
+        $this->hidden = $vars->get('hidden');
     }
 
     /**
@@ -53,6 +54,7 @@ trait ConfigurableModel
         $vars->set('fillable', static::iniFillable($attributes));
         $vars->set('dates', static::iniDates($attributes));
         $vars->set('casts', static::iniCasts($attributes));
+        $vars->set('hidden', static::iniHidden($attributes));
 
         static::$internalInitialization = $vars;
     }
@@ -82,6 +84,22 @@ trait ConfigurableModel
     {
         return $attributes->filter(function ($attribute) {
             return $attribute->getFillable();
+        })->map(function ($attribute) {
+            return $attribute->getName();
+        })->toArray();
+    }
+
+    /**
+     * Initialize hidden by attributes.
+     *
+     * @param Collection $attributes
+     *
+     * @return array
+     */
+    public static function iniHidden(Collection $attributes): array
+    {
+        return $attributes->filter(function ($attribute) {
+            return $attribute->getHidden();
         })->map(function ($attribute) {
             return $attribute->getName();
         })->toArray();
