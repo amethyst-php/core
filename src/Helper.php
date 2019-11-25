@@ -19,7 +19,9 @@ class Helper implements CacheableContract
     use CacheableTrait;
 
     protected $data;
+    protected $dataIndexedByModel;
     protected $packageByDataName;
+    protected $managers;
 
     public function __construct()
     {
@@ -32,6 +34,7 @@ class Helper implements CacheableContract
         $this->packageByDataName = collect();
 
         $this->data = collect();
+        $this->managers = collect();
 
         $return = Collection::make();
 
@@ -42,32 +45,44 @@ class Helper implements CacheableContract
                 if ($class) {
                     $this->data[$nameData] = $data;
                     $this->packageByDataName[$nameData] = $config;
+                    $this->dataIndexedByModel[$class] = $data;
                 }
             }
         }
     }
 
-    public function filter($query, $str, $entity, $agent)
+    public function filter($query, $str, $entity, $agent, $with = [])
     {
         $filter = new FilterScope(
             function (Model $model) use ($agent) {
-                return $this->newManagerByModel(
-                    get_class($model), 
-                    $agent
-                )->getAttributes()
+                return $this->newManagerByModel(get_class($model), $agent)
+                ->getAttributes()
                 ->map(function ($attribute) {
                     return $attribute->getName();
                 })->values()->toArray();
             },
-            $str
+            $str,
+            $with
         );
 
+        $filter->setOnApply(function ($query, $model) use ($agent) {
+            $manager = $this->newManagerByModel(get_class($model), $agent);
+            $manager->getRepository()->applyScopes($query);
+        });
+
         $filter->apply($query, $entity);
+
+        return $filter;
     }
 
     public function getData()
     {
         return $this->data;
+    }
+
+    public function getDataIndexedByModel()
+    {
+        return $this->dataIndexedByModel;
     }
 
     public function getPackages()
@@ -83,9 +98,12 @@ class Helper implements CacheableContract
             throw new \Exception(sprintf('Missing %s', $classModel));
         }
 
-        $class = Arr::get($data, 'manager');
+        $manager = $this->managers[$data['manager']] ?? app($data['manager']);
+    
+        $this->managers[$data['manager']] = $manager;
+        $manager->setAgent($agent);
 
-        return new $class($agent);
+        return $manager;
     }
 
     public function findManagerByName(string $name)
@@ -155,14 +173,12 @@ class Helper implements CacheableContract
 
     public function findDataByModel(string $class)
     {
-        return $this->getData()->filter(function ($data) use ($class) {
-            return Arr::get($data, 'model') === $class;
-        })->first();
+        return $this->getDataIndexedByModel()[$class] ?? null;
     }
 
     public function findDataByName(string $name)
     {
-        return Arr::get($this->getData(), $name);
+        return $this->getData()[$name];
     }
 
     public function findDataByTableName($tableName)
