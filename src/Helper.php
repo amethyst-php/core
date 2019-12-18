@@ -13,6 +13,7 @@ use Railken\Cacheable\CacheableTrait;
 use Railken\Lem\Contracts\AgentContract;
 use Illuminate\Database\Eloquent\Model;
 use Railken\EloquentMapper\Scopes\FilterScope;
+use Amethyst\Common\Exceptions\DataNotFoundException;
 
 class Helper implements CacheableContract
 {
@@ -95,7 +96,7 @@ class Helper implements CacheableContract
         $data = $this->findDataByModel($classModel);
 
         if (!$data) {
-            throw new \Exception(sprintf('Missing %s', $classModel));
+            throw new DataNotFoundException(sprintf('Missing %s', $classModel));
         }
 
         $manager = $this->managers[$data['manager']] ?? app($data['manager']);
@@ -111,7 +112,7 @@ class Helper implements CacheableContract
         $data = $this->findDataByName($name);
 
         if (!$data) {
-            throw new \Exception(sprintf('Missing %s', $name));
+            throw new DataNotFoundException(sprintf('Missing %s', $name));
         }
 
         return Arr::get($data, 'manager');
@@ -122,7 +123,7 @@ class Helper implements CacheableContract
         $data = $this->findDataByName($name);
 
         if (!$data) {
-            throw new \Exception(sprintf('Missing %s', $name));
+            throw new DataNotFoundException(sprintf('Missing %s', $name));
         }
 
         return Arr::get($data, 'model');
@@ -133,7 +134,7 @@ class Helper implements CacheableContract
         $data = $this->findDataByName($name);
 
         if (!$data) {
-            throw new \Exception(sprintf('Missing %s', $name));
+            throw new DataNotFoundException(sprintf('Missing %s', $name));
         }
 
         return Arr::get($data, 'table');
@@ -144,7 +145,7 @@ class Helper implements CacheableContract
         $data = $this->findDataByTableName($table);
 
         if (!$data) {
-            throw new \Exception(sprintf('Missing %s', $table));
+            throw new DataNotFoundException(sprintf('Missing table %s', $table));
         }
 
         return Arr::get($data, 'model');
@@ -178,7 +179,7 @@ class Helper implements CacheableContract
 
     public function findDataByName(string $name)
     {
-        return $this->getData()[$name];
+        return $this->getData()[$name] ?? null;
     }
 
     public function findDataByTableName($tableName)
@@ -242,7 +243,7 @@ class Helper implements CacheableContract
         $model = Arr::get($this->findDataByName($data), 'model');
 
         if (!$classMorphable || !$model) {
-            throw new \Exception(sprintf("Pushing a dynamic relation with a non existent data %s:%s", $data, $morphable));
+            throw new DataNotFoundException(sprintf("Pushing a dynamic relation with a non existent data %s:%s", $data, $morphable));
         }
 
         Relation::morphMap([
