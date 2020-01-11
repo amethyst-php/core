@@ -1,6 +1,6 @@
 <?php
 
-namespace Amethyst\Common;
+namespace Amethyst\Core;
 
 use Illuminate\Support\Facades\Config;
 

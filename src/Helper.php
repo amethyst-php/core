@@ -1,6 +1,6 @@
 <?php
 
-namespace Amethyst\Common;
+namespace Amethyst\Core;
 
 use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -13,12 +13,13 @@ use Railken\Cacheable\CacheableTrait;
 use Railken\Lem\Contracts\AgentContract;
 use Illuminate\Database\Eloquent\Model;
 use Railken\EloquentMapper\Scopes\FilterScope;
-use Amethyst\Common\Exceptions\DataNotFoundException;
+use Amethyst\Core\Exceptions\DataNotFoundException;
 
 class Helper implements CacheableContract
 {
     use CacheableTrait;
 
+    protected $config;
     protected $data;
     protected $dataIndexedByModel;
     protected $packageByDataName;
@@ -52,19 +53,9 @@ class Helper implements CacheableContract
         }
     }
 
-    public function filter($query, $str, $entity, $agent, $with = [])
+    /*public function filter($query, $str, $entity, $agent, $with = [])
     {
-        $filter = new FilterScope(
-            function (Model $model) use ($agent) {
-                return $this->newManagerByModel(get_class($model), $agent)
-                ->getAttributes()
-                ->map(function ($attribute) {
-                    return $attribute->getName();
-                })->values()->toArray();
-            },
-            $str,
-            $with
-        );
+        $filter = new FilterScope();
 
         $filter->setOnApply(function ($query, $model) use ($agent) {
             $manager = $this->newManagerByModel(get_class($model), $agent);
@@ -74,7 +65,7 @@ class Helper implements CacheableContract
         $filter->apply($query, $entity);
 
         return $filter;
-    }
+    }*/
 
     public function getData()
     {

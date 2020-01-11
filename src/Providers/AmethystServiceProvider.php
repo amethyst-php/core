@@ -1,9 +1,11 @@
 <?php
 
-namespace Amethyst\Common;
+namespace Amethyst\Core\Providers;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
+use Amethyst\Core\Map;
+use Railken\EloquentMapper\Contracts\Map as MapContract;
 
 class AmethystServiceProvider extends ServiceProvider
 {
@@ -13,8 +15,9 @@ class AmethystServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register(\Railken\Lem\Providers\ManagerServiceProvider::class);
-        $this->app->register(\Amethyst\Providers\ApiServiceProvider::class);
+        $this->app->register(\Amethyst\Core\Providers\ApiServiceProvider::class);
         $this->app->register(\Railken\EloquentMapper\EloquentMapperServiceProvider::class);
+        $this->app->bind(MapContract::class, Map::class);
 
         $this->app->get('eloquent.mapper')->retriever(function () {
             return $this->app->get('amethyst')->getData()->map(function ($data) {
@@ -26,7 +29,7 @@ class AmethystServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->app->singleton('amethyst', function ($app) {
-            return new \Amethyst\Common\Helper();
+            return new \Amethyst\Core\Helper();
         });
 
         $this->loadRoutesFrom(__DIR__.'/../resources/routes.php');

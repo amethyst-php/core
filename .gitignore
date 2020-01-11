@@ -4,3 +4,4 @@ var/cache
 build/
 \.env
 composer\.lock
+\.phpunit\.xml

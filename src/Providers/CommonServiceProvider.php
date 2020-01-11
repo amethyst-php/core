@@ -1,6 +1,6 @@
 <?php
 
-namespace Amethyst\Common;
+namespace Amethyst\Core\Providers;
 
 use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Support\Facades\Config;
