@@ -18,20 +18,13 @@ class AmethystServiceProvider extends ServiceProvider
         $this->app->register(\Amethyst\Core\Providers\ApiServiceProvider::class);
         $this->app->register(\Railken\EloquentMapper\EloquentMapperServiceProvider::class);
         $this->app->bind(MapContract::class, Map::class);
-
-        $this->app->get('eloquent.mapper')->retriever(function () {
-            return $this->app->get('amethyst')->getData()->map(function ($data) {
-                return Arr::get($data, 'model');
-            })->toArray();
+        $this->app->singleton('amethyst', function ($app) {
+            return new \Amethyst\Core\Helper();
         });
     }
 
     public function boot()
     {
-        $this->app->singleton('amethyst', function ($app) {
-            return new \Amethyst\Core\Helper();
-        });
-
-        $this->loadRoutesFrom(__DIR__.'/../resources/routes.php');
+        $this->loadRoutesFrom(__DIR__.'/../../resources/routes.php');
     }
 }

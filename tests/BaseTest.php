@@ -79,12 +79,15 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
             'faker'      => App\Fakers\BarFaker::class,
             'manager'    => App\Managers\BarManager::class,
         ]);
+        
+        app('amethyst')->ini();
+        $this->artisan('mapper:generate');
     }
 
     protected function getPackageProviders($app)
     {
         return [
-            \Amethyst\Core\Providers\ApiServiceProvider::class,
+            \Amethyst\Core\Providers\AmethystServiceProvider::class,
         ];
     }
 }

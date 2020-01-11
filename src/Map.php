@@ -15,6 +15,6 @@ class Map extends BaseMap
     {
         return app('amethyst')->getData()->map(function ($data) {
             return Arr::get($data, 'model');
-        });
+        })->toArray();
     }
 }

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Railken\LaraEye\Filter;
 use Railken\Lem\Result;
-use Railken\SQ\Exceptions\QuerySyntaxException;
+use Railken\LaraEye\Exceptions\FilterSyntaxException;
 use Symfony\Component\HttpFoundation\Response;
 
 trait RestStoreTrait
@@ -24,8 +24,8 @@ trait RestStoreTrait
 
         try {
             $this->filterQuery($query, $request);
-        } catch (QuerySyntaxException $e) {
-            return $this->error(['code' => 'QUERY_SYNTAX_ERROR', 'message' => 'Syntax error']);
+        } catch (FilterSyntaxException $e) {
+            return $this->error(['code' => 'QUERY_SYNTAX_ERROR', 'message' => $e->getMessage()]);
         }
 
         $params = $request->only($this->fillable);

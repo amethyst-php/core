@@ -15,8 +15,6 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
 {
     protected $selectedAttributes = [];
     protected $authorizedAttributes = [];
-    protected $availableAttributes = [];
-
     /**
      * Manager.
      *
@@ -56,14 +54,6 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
         $this->manager = $manager;
         $this->inflector = new Inflector();
         $this->request = $request;
-
-        $this->availableIncludes = collect(app('eloquent.mapper')->getFinder()->relations($this->manager->getEntity()))->map(function ($i) {
-            return $i->name;
-        })->toArray();
-
-        $this->availableAttributes = collect($this->manager->getAttributes()->map(function ($i) {
-            return $i->getName();
-        }));
     }
 
     /**

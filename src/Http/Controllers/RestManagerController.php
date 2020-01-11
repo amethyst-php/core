@@ -162,11 +162,13 @@ abstract class RestManagerController extends Controller implements CacheableCont
                 return new WithItem($item->name, $item->query);
             }, $include));
         } else {
-            $include = explode(",", $include);
+            $include = new WithCollection(array_map(function ($item) {
+                return new WithItem($item);
+            }, explode(",", $include)));
         }
 
         $scope = new FilterScope;
-        $scope->apply($query, $request->input('query'), $include);
+        $scope->apply($query, strval($request->input('query')), $include);
 
         $this->queryable = $scope->getKeys();
     }
