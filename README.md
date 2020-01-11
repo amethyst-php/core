@@ -1,19 +1,19 @@
-# amethyst-common
+# amethyst-core
 
-[![Build Status](https://img.shields.io/travis/amethyst-php/common/master.svg?style=flat-square)](https://travis-ci.org/amethyst-php/common)
+[![Actions Status](https://github.com/amethyst-php/core/workflows/test/badge.svg)](https://github.com/amethyst-php/core/actions)
 
-This is a [amethyst](https://github.com/amethyst-php/amethyst) package
-
-Amethyst package.
+[Amethyst](https://github.com/amethyst-php/amethyst) package.
 
 # Requirements
 
-PHP 7.1 and later.
+PHP 7.2 and later.
+
+Laravel 5.8 and later.
 
 ## Installation
 
 You can install it via [Composer](https://getcomposer.org/) by typing the following command:
 
 ```bash
-composer require amethyst/common
+composer require amethyst/core
 ```
