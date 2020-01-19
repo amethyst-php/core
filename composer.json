@@ -6,6 +6,7 @@
         "php": ">=7.2",
         "railken/bag": "^1.2",
         "railken/eloquent-mapper": "0.2.*",
+        "laravel/framework": "5.8.* || 6.*",
         "league/fractal": "^0.17.0",
         "railken/lem": "^3.2",
         "railken/cacheable": "0.1.*",
