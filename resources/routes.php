@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
-use Amethyst\Api\Support\Router;
+use Amethyst\Core\Support\Router;
 
 foreach (Config::get('amethyst') as $packageName => $package) {
     foreach ((array)Config::get('amethyst.'.$packageName.'.http') as $groupName => $group) {
