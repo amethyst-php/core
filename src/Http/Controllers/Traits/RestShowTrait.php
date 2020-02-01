@@ -20,7 +20,7 @@ trait RestShowTrait
         $entity = $this->getEntityById($id);
 
         if (!$entity) {
-            return $this->response(null, Response::HTTP_NOT_FOUND);
+            abort(404);
         }
 
         return $this->response($this->serialize($entity, $request), Response::HTTP_OK);

@@ -1,5 +1,4 @@
 <?php
-
 namespace Amethyst\Core;
 
 use Doctrine\Common\Inflector\Inflector;
@@ -34,7 +33,6 @@ class Helper implements CacheableContract
     public function ini()
     {
         $this->packageByDataName = collect();
-
         $this->data = collect();
         $this->managers = collect();
 
@@ -52,20 +50,6 @@ class Helper implements CacheableContract
             }
         }
     }
-
-    /*public function filter($query, $str, $entity, $agent, $with = [])
-    {
-        $filter = new FilterScope();
-
-        $filter->setOnApply(function ($query, $model) use ($agent) {
-            $manager = $this->newManagerByModel(get_class($model), $agent);
-            $manager->getRepository()->applyScopes($query);
-        });
-
-        $filter->apply($query, $entity);
-
-        return $filter;
-    }*/
 
     public function getData()
     {
@@ -153,142 +137,90 @@ class Helper implements CacheableContract
             });
     }
 
-    public function findPackageNameByData($findName)
+    /**
+     * Return package data given data name
+     *
+     * @param string $name
+     *
+     * @return array
+     */
+    public function findPackageNameByData($name): array
     {
-        return Arr::get($this->packageByDataName, $findName);
+        return Arr::get($this->packageByDataName, $name);
     }
 
-    public function findMorphByModel(string $class)
-    {
-        return $this->tableize($class);
-    }
-
-    public function findDataByModel(string $class)
+    /*
+     * Return data given model class
+     *
+     * @param string $name
+     *
+     * @return array
+     */
+    public function findDataByModel(string $class): array
     {
         return $this->getDataIndexedByModel()[$class] ?? null;
     }
 
-    public function findDataByName(string $name)
+    /*
+     * Return data given name
+     *
+     * @param string $name
+     *
+     * @return array
+     */
+    public function findDataByName(string $name): ?array
     {
         return $this->getData()[$name] ?? null;
     }
 
-    public function findDataByTableName($tableName)
+    /*
+     * Return data given table name
+     *
+     * @param string $tableName
+     *
+     * @return array
+     */
+    public function findDataByTableName(string $tableName): array
     {
         return $this->getData()->filter(function ($data) use ($tableName) {
             return Arr::get($data, 'table') === $tableName;
         })->first();
     }
 
-    public function getNameDataByModel(string $class)
+    /**
+     * Return the name of data given model
+     *
+     * @param string $class
+     *
+     * @return string
+     */
+    public function getNameDataByModel(string $class): string
     {
         return class_exists($class)
             ? str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($class))->getShortName()))
             : null;
     }
 
-    public function validMorphRelation(string $data, string $attribute, string $morphable)
+    /**
+     * Return an array containing the name of all data registered
+     *
+     * @return array
+     */
+    public function getDataNames(): array
     {
-        return in_array($morphable, $this->getMorphListable($data, $attribute), true);
+        return $this->getData()->keys()->toArray();
     }
 
-    public function putMorphListable(string $data, string $attribute, string $alias)
+    /**
+     * Return an array with the name as the key and the class manager as the item
+     *
+     * @return array
+     */
+    public function getDataManagers(): array
     {
-        $key = $this->getMorphConfig($data, $attribute);
-        $this->config->put($key, array_merge($this->config->get($key, []), [$alias]));
-    }
-
-    public function getMorphListable(string $data, string $attribute)
-    {
-        return $this->config->get($this->getMorphConfig($data, $attribute), []);
-    }
-
-    public function getMorphRelationable(string $data, string $attribute)
-    {
-        return Collection::make($this->config->get($this->getMorphConfig($data, $attribute)))->mapWithKeys(function ($item) {
-            $data = $this->findDataByName($item);
-
-            return [$item => Arr::get($data, 'manager')];
+        return $this->getData()->map(function ($data, $key) {
+            return Arr::get($data, 'manager');
         })->toArray();
-    }
-
-    public function getMorphConfig(string $data, string $attribute)
-    {
-        $packageName = $this->findPackageNameByData($data);
-
-        return sprintf('amethyst.%s.data.%s.attributes.%s.options', $packageName, $data, $attribute);
-    }
-
-    public function parseMorph(string $data, string $attribute, string $morphable, string $method = null)
-    {
-        if ($this->validMorphRelation($data, $attribute, $morphable)) {
-            return [false, false, false, false];
-        }
-
-        $dataMorphable = $this->findDataByName($morphable);
-
-        $alias = $morphable;
-
-        $classMorphable = Arr::get($dataMorphable, 'model');
-
-        $model = Arr::get($this->findDataByName($data), 'model');
-
-        if (!$classMorphable || !$model) {
-            throw new DataNotFoundException(sprintf("Pushing a dynamic relation with a non existent data %s:%s", $data, $morphable));
-        }
-
-        Relation::morphMap([
-            $alias => $classMorphable,
-        ]);
-
-        $key = $this->getMorphConfig($data, $attribute);
-
-        $this->config->put($key, array_merge($this->config->get($key, []), [$alias]));
-
-        return [
-            $classMorphable,
-            $method ? $method : Str::plural($data),
-            $model,
-            $attribute,
-        ];
-    }
-
-    public function pushMorphRelation(string $data, string $attribute, string $morphable, string $method = null)
-    {
-        list($class, $method, $model, $attribute) = $this->parseMorph($data, $attribute, $morphable, $method);
-        
-        if (!$class) {
-            return;
-        }
-
-        $inflector = new \Doctrine\Common\Inflector\Inflector;
-        $method = $inflector->camelize($method);
-
-        return $class::morph_many($method, $model, $attribute);
-    }
-
-    public function parseScope(string $class, array $scopes)
-    {
-        foreach ($scopes as $k => $scope) {
-            $partsColumn = explode('.', $scope['column']);
-
-            if (count($partsColumn) > 1) {
-                try {
-                    $table = Arr::get($this->findDataByModel($class), 'table');
-
-                    if ($table === $partsColumn[0]) {
-                        $partsColumn = array_slice($partsColumn, 1);
-                    } else {
-                        $partsColumn[0] = $this->getNameDataByModel($this->findModelByTable($partsColumn[0]));
-                    }
-
-                    $scopes[$k]['column'] = implode('.', $partsColumn);
-                } catch (\Exception $e) {
-                }
-            }
-        }
-
-        return $scopes;
     }
 
     public function findClasses($directory, $subclass)
@@ -303,7 +235,19 @@ class Helper implements CacheableContract
         return array_keys($iter->type($subclass)->where('isInstantiable')->getClassMap());
     }
 
-    public function tableize($obj)
+    public function findMorphByModel(string $class)
+    {
+        return $this->tableize($class);
+    }
+
+    /**
+     * Convert an entity to a table
+     * 
+     * @param $obj
+     *
+     * @return string
+     */
+    public function tableize($obj): string
     {
         return str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($obj))->getShortName()));
     }

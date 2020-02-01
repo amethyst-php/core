@@ -33,6 +33,7 @@ abstract class RestManagerController extends Controller implements CacheableCont
      * @var string
      */
     public $name;
+    
     /**
      * @var string
      */

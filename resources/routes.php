@@ -4,6 +4,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Amethyst\Core\Support\Router;
 
+/*
 foreach (Config::get('amethyst') as $packageName => $package) {
     foreach ((array)Config::get('amethyst.'.$packageName.'.http') as $groupName => $group) {
         foreach ($group as $configName => $config) {
@@ -44,4 +45,19 @@ foreach (Config::get('amethyst') as $packageName => $package) {
             }
         }
     }
+}*/
+
+foreach (Config::get('amethyst.api.http') as $name => $config) {
+    Router::group($name, ['as' => 'amethyst.', 'prefix' => '{name}'], function ($router) use ($config) {
+        $controller = \Amethyst\Core\Http\Controllers\BasicController::class;
+
+        $router->get('/', ['as' => 'index', 'uses' => $controller.'@index']);
+        $router->put('/', ['as' => 'store', 'uses' => $controller.'@store']);
+        $router->delete('/', ['as' => 'erase', 'uses' => $controller.'@erase']);
+        $router->post('/', ['as' => 'create', 'uses' => $controller.'@create']);
+        $router->put('/{id}', ['as' => 'update', 'uses' => $controller.'@update']);
+        $router->delete('/{id}', ['as' => 'remove', 'uses' => $controller.'@remove']);
+        $router->get('/{id}', ['as' => 'show', 'uses' => $controller.'@show']);
+    
+    });
 }

@@ -20,7 +20,7 @@ trait RestUpdateTrait
         $entity = $this->getEntityById($id);
 
         if (!$entity) {
-            return $this->response(null, Response::HTTP_NOT_FOUND);
+            abort(404);
         }
 
         $params = $request->only($this->fillable);
