@@ -57,11 +57,11 @@ class Helper implements CacheableContract
     }
 
     public function addData(string $name, ManagerContract $manager)
-    {;
-
+    {
+        $manager->setName($name);
         $this->data[$name] = $manager;
-        // $this->dataIndexedByModel[$class] = $manager;
 
+        // $this->dataIndexedByModel[$class] = $manager;
     }
 
     public function removeData(string $name)
