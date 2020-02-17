@@ -10,6 +10,7 @@ use League\Fractal\TransformerAbstract;
 use Railken\Lem\Contracts\ManagerContract;
 use Railken\Lem\Contracts\EntityContract;
 use Railken\Lem\Tokens;
+use Railken\EloquentMapper\Contracts\Map as MapContract;
 
 class BaseTransformer extends TransformerAbstract implements TransformerContract
 {
@@ -54,6 +55,12 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
         $this->manager = $manager;
         $this->inflector = new Inflector();
         $this->request = $request;
+
+
+        $map = app(MapContract::class);
+
+        $this->availableIncludes = array_keys($map->relations($manager->newEntity()));
+
     }
 
     /**

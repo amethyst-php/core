@@ -56,6 +56,7 @@ trait RestIndexTrait
 
         $resources = $result->getCollection();
 
+
         return $this->response($this->serializeCollection($resources, $request, $result));
     }
 }

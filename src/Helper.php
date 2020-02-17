@@ -46,6 +46,10 @@ class Helper implements CacheableContract
                     $this->data[$nameData] = $data;
                     $this->packageByDataName[$nameData] = $config;
                     $this->dataIndexedByModel[$class] = $data;
+
+                    Relation::morphMap([
+                        $nameData => $class
+                    ]);
                 }
             }
         }

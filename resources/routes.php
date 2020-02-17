@@ -48,16 +48,18 @@ foreach (Config::get('amethyst') as $packageName => $package) {
 }*/
 
 foreach (Config::get('amethyst.api.http') as $name => $config) {
-    Router::group($name, ['as' => 'amethyst.', 'prefix' => '{name}'], function ($router) use ($config) {
-        $controller = \Amethyst\Core\Http\Controllers\BasicController::class;
+    if ($name === 'data') {
+        Router::group($name, ['prefix' => '{name}'], function ($router) use ($name, $config) {
 
-        $router->get('/', ['as' => 'index', 'uses' => $controller.'@index']);
-        $router->put('/', ['as' => 'store', 'uses' => $controller.'@store']);
-        $router->delete('/', ['as' => 'erase', 'uses' => $controller.'@erase']);
-        $router->post('/', ['as' => 'create', 'uses' => $controller.'@create']);
-        $router->put('/{id}', ['as' => 'update', 'uses' => $controller.'@update']);
-        $router->delete('/{id}', ['as' => 'remove', 'uses' => $controller.'@remove']);
-        $router->get('/{id}', ['as' => 'show', 'uses' => $controller.'@show']);
-    
-    });
+            $controller = \Amethyst\Core\Http\Controllers\BasicController::class;
+
+            $router->get('/', ['as' => 'index', 'uses' => $controller.'@index']);
+            $router->put('/', ['as' => 'store', 'uses' => $controller.'@store']);
+            $router->delete('/', ['as' => 'erase', 'uses' => $controller.'@erase']);
+            $router->post('/', ['as' => 'create', 'uses' => $controller.'@create']);
+            $router->put('/{id}', ['as' => 'update', 'uses' => $controller.'@update']);
+            $router->delete('/{id}', ['as' => 'remove', 'uses' => $controller.'@remove']);
+            $router->get('/{id}', ['as' => 'show', 'uses' => $controller.'@show']);
+        });
+    }
 }
