@@ -47,7 +47,7 @@ class Helper implements CacheableContract
 
     public function boot()
     {
-        foreach($this->getData() as $name => $manager) {
+        foreach ($this->getData() as $name => $manager) {
             $manager->boot();
 
             Relation::morphMap([
@@ -114,7 +114,7 @@ class Helper implements CacheableContract
     }
 
     /*
-    
+
     public function findModelByName(string $name)
     {
         return $this->findDataByName($name, true)->getEntity();

@@ -21,7 +21,7 @@ trait ConfigurableModel
      * Initialize the model by the configuration.
      *
      * @param string $config
-     * @param bool $reset
+     * @param bool   $reset
      */
     public function ini(string $config = null, bool $reset = false)
     {
@@ -37,9 +37,8 @@ trait ConfigurableModel
         }*/
 
         static::$__vars = $this->retrieveVars();
-        
-        $vars = static::$__vars;
 
+        $vars = static::$__vars;
 
         $this->table = $vars->get('table');
         $this->fillable = $vars->get('fillable');
@@ -52,7 +51,7 @@ trait ConfigurableModel
     {
         $class = Config::get($this->__config.'.manager');
 
-        return new $class;
+        return new $class();
     }
 
     public function retrieveTableName()
