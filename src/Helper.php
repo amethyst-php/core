@@ -48,11 +48,7 @@ class Helper implements CacheableContract
     public function boot()
     {
         foreach ($this->getData() as $name => $manager) {
-            $manager->boot();
-
-            Relation::morphMap([
-                $name => $manager->getEntity(),
-            ]);
+            $this->bootData($manager);
         }
     }
 
@@ -62,6 +58,15 @@ class Helper implements CacheableContract
         $this->data[$name] = $manager;
 
         // $this->dataIndexedByModel[$class] = $manager;
+    }
+
+    public function bootData(ManagerContract $manager)
+    {
+        $manager->boot();
+
+        Relation::morphMap([
+            $manager->getName() => $manager->getEntity(),
+        ]);
     }
 
     public function removeData(string $name)
