@@ -3,7 +3,6 @@
 namespace Amethyst\Core\Http\Controllers;
 
 use Amethyst\Core\Transformers\BaseTransformer;
-use Closure;
 use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -17,13 +16,12 @@ use League\Fractal\Serializer\JsonApiSerializer;
 use League\Fractal\TransformerAbstract;
 use Railken\Cacheable\CacheableContract;
 use Railken\Cacheable\CacheableTrait;
-use Railken\Lem\Attributes;
-use Railken\Lem\Contracts\EntityContract;
-use Spatie\ResponseCache\Facades\ResponseCache;
-use Illuminate\Database\Eloquent\Model;
 use Railken\EloquentMapper\Scopes\FilterScope;
 use Railken\EloquentMapper\With\WithCollection;
 use Railken\EloquentMapper\With\WithItem;
+use Railken\Lem\Attributes;
+use Railken\Lem\Contracts\EntityContract;
+use Spatie\ResponseCache\Facades\ResponseCache;
 
 abstract class RestManagerController extends Controller implements CacheableContract
 {
@@ -33,14 +31,12 @@ abstract class RestManagerController extends Controller implements CacheableCont
      * @var string
      */
     public $name;
-    
+
     /**
      * @var string
      */
     public $class;
 
-    protected $startingQuery;
-    
     /**
      * @var string
      */
@@ -61,10 +57,12 @@ abstract class RestManagerController extends Controller implements CacheableCont
      */
     public $fillable = [];
 
+    protected $startingQuery;
+
     /**
      * Cache response?
      *
-     * @var boolean
+     * @var bool
      */
     protected $cached = false;
 
@@ -87,7 +85,6 @@ abstract class RestManagerController extends Controller implements CacheableCont
 
         $this->manager = new $class();
     }
-
 
     public function callAction($method, $parameters)
     {
@@ -165,10 +162,10 @@ abstract class RestManagerController extends Controller implements CacheableCont
         } else {
             $include = new WithCollection(array_map(function ($item) {
                 return new WithItem($item);
-            }, explode(",", $include)));
+            }, explode(',', $include)));
         }
 
-        $scope = new FilterScope;
+        $scope = new FilterScope();
         $scope->apply($query, strval($request->input('query')), $include);
 
         $this->queryable = $scope->getKeys();
@@ -274,7 +271,7 @@ abstract class RestManagerController extends Controller implements CacheableCont
 
     public function parseIncludes($include)
     {
-        $include = is_array($include) ? $include : explode(",", $include);
+        $include = is_array($include) ? $include : explode(',', $include);
 
         $includes = array_map(function ($element) {
             if (is_string($element) && is_array(json_decode($element, true))) {

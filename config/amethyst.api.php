@@ -6,9 +6,9 @@ return [
             'router' => [
                 'as'         => 'app.',
                 'middleware' => [
-                	'optional-auth:api',
+                    'optional-auth:api',
                 ],
-                'prefix'     => '/api',
+                'prefix' => '/api',
             ],
         ],
         'data' => [
@@ -17,7 +17,7 @@ return [
                 'middleware' => [
                     'optional-auth:api',
                 ],
-                'prefix'     => '/api/data',
+                'prefix' => '/api/data',
             ],
         ],
     ],

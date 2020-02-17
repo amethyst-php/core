@@ -3,7 +3,6 @@
 namespace Amethyst\Core\Tests;
 
 use Amethyst\Core\Support\Router;
-use Amethyst\Core\Tests\App;
 use Amethyst\Core\Tests\App\Controllers\FooController;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Config;
@@ -79,7 +78,7 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
             'faker'      => App\Fakers\BarFaker::class,
             'manager'    => App\Managers\BarManager::class,
         ]);
-        
+
         app('amethyst')->ini();
         $this->artisan('mapper:generate');
     }

@@ -4,9 +4,8 @@ namespace Amethyst\Core\Http\Controllers\Traits;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Railken\LaraEye\Filter;
-use Railken\Lem\Result;
 use Railken\LaraEye\Exceptions\FilterSyntaxException;
+use Railken\Lem\Result;
 use Symfony\Component\HttpFoundation\Response;
 
 trait RestStoreTrait

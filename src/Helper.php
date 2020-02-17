@@ -1,18 +1,17 @@
 <?php
+
 namespace Amethyst\Core;
 
+use Amethyst\Core\Exceptions\DataNotFoundException;
 use Doctrine\Common\Inflector\Inflector;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Str;
 use Railken\Cacheable\CacheableContract;
 use Railken\Cacheable\CacheableTrait;
 use Railken\Lem\Contracts\AgentContract;
-use Illuminate\Database\Eloquent\Model;
-use Railken\EloquentMapper\Scopes\FilterScope;
-use Amethyst\Core\Exceptions\DataNotFoundException;
 
 class Helper implements CacheableContract
 {
@@ -48,7 +47,7 @@ class Helper implements CacheableContract
                     $this->dataIndexedByModel[$class] = $data;
 
                     Relation::morphMap([
-                        $nameData => $class
+                        $nameData => $class,
                     ]);
                 }
             }
@@ -79,7 +78,7 @@ class Helper implements CacheableContract
         }
 
         $manager = $this->managers[$data['manager']] ?? app($data['manager']);
-    
+
         $this->managers[$data['manager']] = $manager;
         $manager->setAgent($agent);
 
@@ -142,7 +141,7 @@ class Helper implements CacheableContract
     }
 
     /**
-     * Return package data given data name
+     * Return package data given data name.
      *
      * @param string $name
      *
@@ -192,7 +191,7 @@ class Helper implements CacheableContract
     }
 
     /**
-     * Return the name of data given model
+     * Return the name of data given model.
      *
      * @param string $class
      *
@@ -206,7 +205,7 @@ class Helper implements CacheableContract
     }
 
     /**
-     * Return an array containing the name of all data registered
+     * Return an array containing the name of all data registered.
      *
      * @return array
      */
@@ -216,7 +215,7 @@ class Helper implements CacheableContract
     }
 
     /**
-     * Return an array with the name as the key and the class manager as the item
+     * Return an array with the name as the key and the class manager as the item.
      *
      * @return array
      */
@@ -245,8 +244,8 @@ class Helper implements CacheableContract
     }
 
     /**
-     * Convert an entity to a table
-     * 
+     * Convert an entity to a table.
+     *
      * @param $obj
      *
      * @return string

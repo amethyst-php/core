@@ -2,9 +2,8 @@
 
 namespace Amethyst\Core\Providers;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\ServiceProvider;
 use Amethyst\Core\Map;
+use Illuminate\Support\ServiceProvider;
 use Railken\EloquentMapper\Contracts\Map as MapContract;
 
 class AmethystServiceProvider extends ServiceProvider

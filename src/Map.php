@@ -1,13 +1,14 @@
 <?php
+
 namespace Amethyst\Core;
 
-use Railken\EloquentMapper\Map as BaseMap;
 use Illuminate\Support\Arr;
+use Railken\EloquentMapper\Map as BaseMap;
 
 class Map extends BaseMap
 {
     /**
-     * Return an array of all models you want to map
+     * Return an array of all models you want to map.
      *
      * @return array
      */

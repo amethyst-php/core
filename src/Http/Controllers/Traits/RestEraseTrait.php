@@ -4,9 +4,8 @@ namespace Amethyst\Core\Http\Controllers\Traits;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Railken\LaraEye\Filter;
-use Railken\Lem\Result;
 use Railken\LaraEye\Exceptions\FilterSyntaxException;
+use Railken\Lem\Result;
 use Symfony\Component\HttpFoundation\Response;
 
 trait RestEraseTrait
@@ -27,7 +26,7 @@ trait RestEraseTrait
         } catch (FilterSyntaxException $e) {
             return $this->error(['code' => 'QUERY_SYNTAX_ERROR', 'message' => $e->getMessage()]);
         }
-        
+
         $params = $request->only($this->fillable);
 
         DB::beginTransaction();
@@ -37,7 +36,7 @@ trait RestEraseTrait
         $query->chunk(100, function ($resources) use ($params, &$result, $counter) {
             foreach ($resources as $resource) {
                 $result->addErrors($this->getManager()->remove($resource)->getErrors());
-                $counter++;
+                ++$counter;
             }
         });
 

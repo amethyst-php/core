@@ -7,10 +7,9 @@ use Doctrine\Common\Inflector\Inflector;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use League\Fractal\TransformerAbstract;
-use Railken\Lem\Contracts\ManagerContract;
-use Railken\Lem\Contracts\EntityContract;
-use Railken\Lem\Tokens;
 use Railken\EloquentMapper\Contracts\Map as MapContract;
+use Railken\Lem\Contracts\EntityContract;
+use Railken\Lem\Contracts\ManagerContract;
 
 class BaseTransformer extends TransformerAbstract implements TransformerContract
 {
@@ -56,11 +55,9 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
         $this->inflector = new Inflector();
         $this->request = $request;
 
-
         $map = app(MapContract::class);
 
         $this->availableIncludes = array_keys($map->relations($manager->newEntity()));
-
     }
 
     /**
@@ -73,7 +70,7 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
     {
         if (preg_match('/^include/', $method)) {
             $method = preg_replace('/^include/', '', $method);
-            
+
             return $this->resolveInclude(lcfirst($method), $args);
         }
 

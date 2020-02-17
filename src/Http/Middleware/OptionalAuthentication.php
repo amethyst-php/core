@@ -5,7 +5,6 @@ namespace Amethyst\Core\Http\Middleware;
 use Closure;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Middleware\Authenticate;
-use Illuminate\Contracts\Auth\Factory as Auth;
 
 class OptionalAuthentication extends Authenticate
 {
@@ -13,7 +12,7 @@ class OptionalAuthentication extends Authenticate
     {
         try {
             $this->authenticate($request, $guards);
-        } catch(AuthenticationException $e) {
+        } catch (AuthenticationException $e) {
             // dont do anything
         }
 
