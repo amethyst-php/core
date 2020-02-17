@@ -2,7 +2,6 @@
 
 namespace Amethyst\Core;
 
-use Illuminate\Support\Arr;
 use Railken\EloquentMapper\Map as BaseMap;
 
 class Map extends BaseMap
