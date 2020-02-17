@@ -6,11 +6,13 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Railken\Bag;
 use Railken\EloquentMapper\Concerns\Relationer;
+use Railken\EloquentInstance\HasRelationships;
 use Railken\Lem\Attributes;
 
 trait ConfigurableModel
 {
     use Relationer;
+    use HasRelationships;
 
     public $internalAttributes;
     public static $internalInitialization = null;
