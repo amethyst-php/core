@@ -9,15 +9,13 @@ class BasicController extends RestManagerController
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            try {
-                $className = app('amethyst')->findManagerByName($request->route('name'));
-            } catch (\Amethyst\Core\Exceptions\DataNotFoundException $e) {
-                abort(404);
-            }
+    		try {
+    			$this->manager = app('amethyst')->newManagerByName($request->route('name'));
+    		} catch (\Amethyst\Core\Exceptions\DataNotFoundException $e) {
+    			abort(404);
+    		}
 
-            $this->manager = new $className();
-
-            return $next($request);
-        });
+    		return $next($request);
+    	});
     }
 }
