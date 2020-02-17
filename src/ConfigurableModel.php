@@ -14,24 +14,32 @@ trait ConfigurableModel
     use Relationer;
     use HasRelationships;
 
-    public $internalAttributes;
-    public static $internalInitialization = null;
+    public static $__vars = null;
+    public $__config = null;
 
     /**
      * Initialize the model by the configuration.
      *
      * @param string $config
+     * @param bool $reset
      */
-    public function ini(string $config)
+    public function ini(string $config = null, bool $reset = false)
     {
-        $this->internalAttributes = new Bag();
+        $this->__config = $config;
 
-        if (static::$internalInitialization === null) {
-            static::$internalInitialization = new Bag();
-            static::internalInitialization($config);
+        /*
+        if ($reset) {
+            static::$__vars = null;
         }
 
-        $vars = static::$internalInitialization;
+        if (static::$__vars === null) {
+            static::$__vars = new Bag();
+        }*/
+
+        static::$__vars = $this->retrieveVars();
+        
+        $vars = static::$__vars;
+
 
         $this->table = $vars->get('table');
         $this->fillable = $vars->get('fillable');
@@ -40,39 +48,39 @@ trait ConfigurableModel
         $this->hidden = $vars->get('hidden');
     }
 
+    public function retrieveManager()
+    {
+        $class = Config::get($this->__config.'.manager');
+
+        return new $class;
+    }
+
+    public function retrieveTableName()
+    {
+        return Config::get($this->__config.'.table');
+    }
+
     /**
      * Initialize the model by the configuration.
      *
      * @param string $config
+     *
+     * @return Bag
      */
-    public static function internalInitialization(string $config)
+    public function retrieveVars(): Bag
     {
         $vars = new Bag();
 
-        $vars->set('table', Config::get($config.'.table'));
+        $vars->set('table', $this->retrieveTableName());
 
-        $attributes = static::internalGetAttributes($config);
+        $attributes = collect($this->retrieveManager()->getAttributes());
 
-        $vars->set('fillable', static::iniFillable($attributes));
-        $vars->set('dates', static::iniDates($attributes));
-        $vars->set('casts', static::iniCasts($attributes));
-        $vars->set('hidden', static::iniHidden($attributes));
+        $vars->set('fillable', $this->retrieveAttributeFillable($attributes));
+        $vars->set('dates', $this->retrieveAttributeDates($attributes));
+        $vars->set('casts', $this->retrieveAttributeCasts($attributes));
+        $vars->set('hidden', $this->retrieveAttributeHidden($attributes));
 
-        static::$internalInitialization = $vars;
-    }
-
-    /**
-     * Get attributes.
-     *
-     * @param string $config
-     *
-     * @return Collection
-     */
-    public static function internalGetAttributes(string $config)
-    {
-        $classManager = Config::get($config.'.manager');
-
-        return collect((new $classManager())->getAttributes());
+        return $vars;
     }
 
     /**
@@ -82,7 +90,7 @@ trait ConfigurableModel
      *
      * @return array
      */
-    public static function iniFillable(Collection $attributes): array
+    public function retrieveAttributeFillable(Collection $attributes): array
     {
         return $attributes->filter(function ($attribute) {
             return $attribute->getFillable();
@@ -98,7 +106,7 @@ trait ConfigurableModel
      *
      * @return array
      */
-    public static function iniHidden(Collection $attributes): array
+    public function retrieveAttributeHidden(Collection $attributes): array
     {
         return $attributes->filter(function ($attribute) {
             return $attribute->getHidden();
@@ -114,7 +122,7 @@ trait ConfigurableModel
      *
      * @return array
      */
-    public static function iniDates(Collection $attributes): array
+    public function retrieveAttributeDates(Collection $attributes): array
     {
         return $attributes->filter(function ($attribute) {
             return $attribute instanceof Attributes\DateTimeAttribute;
@@ -130,7 +138,7 @@ trait ConfigurableModel
      *
      * @return array
      */
-    public static function iniCasts(Collection $attributes): array
+    public function retrieveAttributeCasts(Collection $attributes): array
     {
         return $attributes->mapWithKeys(function ($attribute) {
             return [$attribute->getName() => $attribute];
