@@ -39,22 +39,29 @@ class Helper implements CacheableContract
         foreach (array_keys(Config::get('amethyst')) as $config) {
             foreach (Config::get('amethyst.'.$config.'.data', []) as $nameData => $data) {
                 if ($manager = Arr::get($data, 'manager')) {
-                    $this->addData($nameData, new $manager());
+                    $this->addData($nameData, new $manager(null, false));
                 }
             }
         }
     }
 
-    public function addData(string $name, ManagerContract $manager)
+    public function boot()
     {
-        $class = $manager->getEntity();
+        foreach($this->getData() as $name => $manager) {
+            $manager->boot();
+
+            Relation::morphMap([
+                $name => $manager->getEntity(),
+            ]);
+        }
+    }
+
+    public function addData(string $name, ManagerContract $manager)
+    {;
 
         $this->data[$name] = $manager;
-        $this->dataIndexedByModel[$class] = $manager;
+        // $this->dataIndexedByModel[$class] = $manager;
 
-        Relation::morphMap([
-            $name => $class,
-        ]);
     }
 
     public function removeData(string $name)
@@ -68,6 +75,11 @@ class Helper implements CacheableContract
     public function getData()
     {
         return $this->data;
+    }
+
+    public function getDataManagers()
+    {
+        return $this->data->all();
     }
 
     public function getDataIndexedByModel()
@@ -102,11 +114,13 @@ class Helper implements CacheableContract
     }
 
     /*
+    
     public function findModelByName(string $name)
     {
         return $this->findDataByName($name, true)->getEntity();
     }
 
+    /*
     public function findTableByName(string $name)
     {
         return $this->findDataByName($name, true)->newEntity()->getTable();
@@ -189,7 +203,7 @@ class Helper implements CacheableContract
      */
     public function getDataNames(): array
     {
-        return $this->getData()->keys()->toArray();
+        return $this->getData()->keys()->all();
     }
 
     public function findMorphByModel(string $class)
