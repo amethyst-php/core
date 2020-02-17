@@ -10,7 +10,7 @@ class BasicController extends RestManagerController
     {
         $this->middleware(function ($request, $next) {
             try {
-                $this->manager = app('amethyst')->newManagerByName($request->route('name'));
+                $this->manager = app('amethyst')->findManagerByName($request->route('name'));
             } catch (\Amethyst\Core\Exceptions\DataNotFoundException $e) {
                 abort(404);
             }

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Config;
 use Railken\Cacheable\CacheableContract;
 use Railken\Cacheable\CacheableTrait;
 use Railken\Lem\Contracts\AgentContract;
+use Railken\Lem\Contracts\ManagerContract;
 
 class Helper implements CacheableContract
 {
@@ -20,7 +21,6 @@ class Helper implements CacheableContract
     protected $config;
     protected $data;
     protected $dataIndexedByModel;
-    protected $packageByDataName;
     protected $managers;
 
     public function __construct()
@@ -31,27 +31,38 @@ class Helper implements CacheableContract
 
     public function ini()
     {
-        $this->packageByDataName = collect();
         $this->data = collect();
-        $this->managers = collect();
+        $this->dataIndexedByModel = collect();
 
         $return = Collection::make();
 
         foreach (array_keys(Config::get('amethyst')) as $config) {
             foreach (Config::get('amethyst.'.$config.'.data', []) as $nameData => $data) {
-                $class = Arr::get($data, 'model');
-
-                if ($class) {
-                    $this->data[$nameData] = $data;
-                    $this->packageByDataName[$nameData] = $config;
-                    $this->dataIndexedByModel[$class] = $data;
-
-                    Relation::morphMap([
-                        $nameData => $class,
-                    ]);
+                if ($manager = Arr::get($data, 'manager')) {
+                    $this->addData($nameData, new $manager);
                 }
             }
         }
+    }
+
+    public function addData(string $name, ManagerContract $manager)
+    {
+        $class = $manager->getEntity();
+
+        $this->data[$name] = $manager;
+        $this->dataIndexedByModel[$class] = $manager;
+
+        Relation::morphMap([
+            $name => $class,
+        ]);
+    }
+
+    public function removeData(string $name)
+    {
+        $class = $this->findManagerByName($name)->getEntity();
+
+        $this->data->forget($name);
+        $this->dataIndexedByModel->forget($class);
     }
 
     public function getData()
@@ -87,52 +98,19 @@ class Helper implements CacheableContract
 
     public function findManagerByName(string $name)
     {
-        $data = $this->findDataByName($name);
-
-        if (!$data) {
-            throw new DataNotFoundException(sprintf('Missing %s', $name));
-        }
-
-        return Arr::get($data, 'manager');
+        return $this->findDataByName($name, true);
     }
 
-    public function newManagerByName(string $name)
-    {
-        return app($this->findManagerByName($name));
-    }
-
+    /*
     public function findModelByName(string $name)
     {
-        $data = $this->findDataByName($name);
-
-        if (!$data) {
-            throw new DataNotFoundException(sprintf('Missing %s', $name));
-        }
-
-        return Arr::get($data, 'model');
+        return $this->findDataByName($name, true)->getEntity();
     }
 
     public function findTableByName(string $name)
     {
-        $data = $this->findDataByName($name);
-
-        if (!$data) {
-            throw new DataNotFoundException(sprintf('Missing %s', $name));
-        }
-
-        return Arr::get($data, 'table');
-    }
-
-    public function findModelByTable(string $table)
-    {
-        $data = $this->findDataByTableName($table);
-
-        if (!$data) {
-            throw new DataNotFoundException(sprintf('Missing table %s', $table));
-        }
-
-        return Arr::get($data, 'model');
-    }
+        return $this->findDataByName($name, true)->newEntity()->getTable();
+    }*/
 
     public function getDataByPackageName($packageName)
     {
@@ -145,68 +123,63 @@ class Helper implements CacheableContract
             });
     }
 
-    /**
-     * Return package data given data name.
-     *
-     * @param string $name
-     *
-     * @return array
-     */
-    public function findPackageNameByData($name): array
-    {
-        return Arr::get($this->packageByDataName, $name);
-    }
-
     /*
      * Return data given model class
      *
      * @param string $name
+     * @param bool $exception
      *
      * @return array
      */
-    public function findDataByModel(string $class): array
+    public function findDataByModel(string $class, bool $exception = false): ManagerContract
     {
-        return $this->getDataIndexedByModel()[$class] ?? null;
+        $data = $this->getDataIndexedByModel()[$class] ?? null;
+
+        if (!$data && $exception) {
+            throw new DataNotFoundException(sprintf('Missing %s', $name));
+        }
+
+        return $data;
     }
 
     /*
      * Return data given name
      *
      * @param string $name
+     * @param bool $exception
      *
      * @return array
      */
-    public function findDataByName(string $name): ?array
+    public function findDataByName(string $name, bool $exception = false): ManagerContract
     {
-        return $this->getData()[$name] ?? null;
+        $data = $this->getData()[$name] ?? null;
+
+        if (!$data && $exception) {
+            throw new DataNotFoundException(sprintf('Missing %s', $name));
+        }
+
+        return $data;
     }
 
     /*
      * Return data given table name
      *
      * @param string $tableName
+     * @param bool $exception
      *
      * @return array
      */
-    public function findDataByTableName(string $tableName): array
+    public function findDataByTableName(string $tableName, bool $exception = false): ManagerContract
     {
-        return $this->getData()->filter(function ($data) use ($tableName) {
-            return Arr::get($data, 'table') === $tableName;
+        $data = $this->getData()->filter(function ($data) use ($tableName) {
+            return $data->newEntity()->getTable() === $tableName;
         })->first();
-    }
 
-    /**
-     * Return the name of data given model.
-     *
-     * @param string $class
-     *
-     * @return string
-     */
-    public function getNameDataByModel(string $class): string
-    {
-        return class_exists($class)
-            ? str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($class))->getShortName()))
-            : null;
+        if (!$data && $exception) {
+            throw new DataNotFoundException(sprintf('Missing %s', $name));
+        }
+
+        return $data;
     }
 
     /**
@@ -217,30 +190,6 @@ class Helper implements CacheableContract
     public function getDataNames(): array
     {
         return $this->getData()->keys()->toArray();
-    }
-
-    /**
-     * Return an array with the name as the key and the class manager as the item.
-     *
-     * @return array
-     */
-    public function getDataManagers(): array
-    {
-        return $this->getData()->map(function ($data, $key) {
-            return Arr::get($data, 'manager');
-        })->toArray();
-    }
-
-    public function findClasses($directory, $subclass)
-    {
-        if (!file_exists($directory)) {
-            return [];
-        }
-
-        $finder = new \Symfony\Component\Finder\Finder();
-        $iter = new \hanneskod\classtools\Iterator\ClassIterator($finder->in($directory));
-
-        return array_keys($iter->type($subclass)->where('isInstantiable')->getClassMap());
     }
 
     public function findMorphByModel(string $class)
@@ -258,5 +207,17 @@ class Helper implements CacheableContract
     public function tableize($obj): string
     {
         return str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($obj))->getShortName()));
+    }
+
+    /**
+     * Return the name of data given model.
+     *
+     * @param string $class
+     *
+     * @return string
+     */
+    public function getNameDataByModel(string $class): string
+    {
+        return class_exists($class) ? $this->tableize($class) : null;
     }
 }
