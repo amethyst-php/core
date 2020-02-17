@@ -5,8 +5,8 @@ namespace Amethyst\Core;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Railken\Bag;
-use Railken\EloquentMapper\Concerns\Relationer;
 use Railken\EloquentInstance\HasRelationships;
+use Railken\EloquentMapper\Concerns\Relationer;
 use Railken\Lem\Attributes;
 
 trait ConfigurableModel
