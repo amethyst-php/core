@@ -20,11 +20,12 @@ class AmethystServiceProvider extends ServiceProvider
         $this->app->singleton('amethyst', function ($app) {
             return new \Amethyst\Core\Helper();
         });
-        app('amethyst')->boot();
     }
 
     public function boot()
     {
+        app('amethyst')->boot();
+        
         $this->loadRoutesFrom(__DIR__.'/../../resources/routes.php');
     }
 }
