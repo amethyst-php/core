@@ -43,6 +43,8 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
 
     protected $relationedTransformers = [];
 
+    protected $map;
+
     /**
      * Create a new instance.
      *
@@ -55,9 +57,9 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
         $this->inflector = new Inflector();
         $this->request = $request;
 
-        $map = app(MapContract::class);
+        $this->map = app(MapContract::class);
 
-        $this->availableIncludes = array_keys($map->relations($manager->newEntity()));
+        $this->availableIncludes = array_keys($this->map->relations($manager->newEntity()));
     }
 
     /**
@@ -87,6 +89,8 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
      */
     public function resolveInclude(string $relationName, array $args)
     {
+        (new \Amethyst\Models\Relation)->newQuery()->with('target')->get();
+        
         $entity = $args[0];
 
         $relation = $entity->{$relationName};
@@ -95,6 +99,7 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
             $relationName = $this->inflector->tableize($relationName);
             $relation = $entity->{$relationName};
         }
+
 
         if (!$relation) {
             return null;
@@ -105,14 +110,14 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
                 return null;
             }
 
-            $classRelation = get_class($relation[0]);
+            $oneRelation = $relation[0];
             $method = 'collection';
         } else {
-            $classRelation = get_class($relation);
+            $oneRelation = $relation;
             $method = 'item';
         }
 
-        $manager = app('amethyst')->newManagerByModel($classRelation, $this->manager->getAgent());
+        $manager = app('amethyst')->get($this->map->modelToKey($oneRelation));
 
         if (!$manager) {
             return null;

@@ -8,6 +8,9 @@ use Railken\Bag;
 use Railken\EloquentInstance\HasRelationships;
 use Railken\EloquentMapper\Concerns\Relationer;
 use Railken\Lem\Attributes;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Railken\EloquentMapper\Contracts\Map as MapContract;
 
 trait ConfigurableModel
 {
@@ -175,5 +178,24 @@ trait ConfigurableModel
     public function getMorphName()
     {
         return static::getStaticMorphName();
+    }
+
+    /**
+     * @inherit
+     */
+    protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
+    {
+        return new MorphTo(...func_get_args());
+    }
+
+    /**
+     * Retrieve the actual class name for a given morph class.
+     *
+     * @param  string  $class
+     * @return string
+     */
+    public static function getActualClassNameForMorph($class)
+    {
+        return app(MapContract::class)->keyToModel($class);
     }
 }
