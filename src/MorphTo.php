@@ -10,7 +10,8 @@ class MorphTo extends BaseMorphTo
     /**
      * Create a new model instance by type.
      *
-     * @param  string  $type
+     * @param string $type
+     *
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function createModelByType($type)

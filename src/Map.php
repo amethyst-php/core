@@ -2,8 +2,8 @@
 
 namespace Amethyst\Core;
 
-use Railken\EloquentMapper\Map as BaseMap;
 use Illuminate\Database\Eloquent\Model;
+use Railken\EloquentMapper\Map as BaseMap;
 
 class Map extends BaseMap
 {
@@ -16,12 +16,13 @@ class Map extends BaseMap
     {
         return app('amethyst')->getData()->map(function ($data) {
             $data->boot();
+
             return $data->newEntity();
         })->all();
     }
 
     /**
-     * Convert a model to a unique key
+     * Convert a model to a unique key.
      *
      * @param Model $model
      *
@@ -33,7 +34,7 @@ class Map extends BaseMap
     }
 
     /**
-     * Convert key to a new instance of a model
+     * Convert key to a new instance of a model.
      *
      * @param string $key
      *

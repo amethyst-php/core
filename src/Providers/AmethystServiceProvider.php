@@ -25,7 +25,7 @@ class AmethystServiceProvider extends ServiceProvider
     public function boot()
     {
         app('amethyst')->boot();
-        
+
         $this->loadRoutesFrom(__DIR__.'/../../resources/routes.php');
     }
 }

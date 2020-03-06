@@ -122,7 +122,7 @@ class Helper implements CacheableContract
     {
         return $this->findManagerByName($name);
     }
-    
+
     /*
 
     public function findModelByName(string $name)
