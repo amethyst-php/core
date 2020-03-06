@@ -175,17 +175,17 @@ trait ConfigurableModel
         })->toArray();
     }
 
-    public function getMorphName()
-    {
-        return static::getStaticMorphName();
-    }
-
     /**
      * @inherit
      */
     protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
     {
         return new MorphTo(...func_get_args());
+    }
+
+    public function getMorphName()
+    {
+        return app(MapContract::class)->modelToKey($this);
     }
 
     /**
