@@ -11,6 +11,7 @@ use Railken\EloquentInstance\HasRelationships;
 use Railken\EloquentMapper\Concerns\Relationer;
 use Railken\EloquentMapper\Contracts\Map as MapContract;
 use Railken\Lem\Attributes;
+use Railken\LaraEye\Filter;
 
 trait ConfigurableModel
 {
@@ -198,5 +199,16 @@ trait ConfigurableModel
     protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
     {
         return new MorphTo(...func_get_args());
+    }
+
+    public function filter(string $string)
+    {
+        $filter = new Filter($this->getTable(), ['*']);
+
+        $builder = $this->newQuery();
+
+        $filter->build($builder, $string);
+
+        return $builder;
     }
 }
