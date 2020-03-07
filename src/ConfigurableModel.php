@@ -10,8 +10,8 @@ use Railken\Bag;
 use Railken\EloquentInstance\HasRelationships;
 use Railken\EloquentMapper\Concerns\Relationer;
 use Railken\EloquentMapper\Contracts\Map as MapContract;
-use Railken\Lem\Attributes;
 use Railken\LaraEye\Filter;
+use Railken\Lem\Attributes;
 
 trait ConfigurableModel
 {
@@ -193,14 +193,6 @@ trait ConfigurableModel
         return app(MapContract::class)->keyToModel($class);
     }
 
-    /**
-     * @inherit
-     */
-    protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
-    {
-        return new MorphTo(...func_get_args());
-    }
-
     public function filter(string $string)
     {
         $filter = new Filter($this->getTable(), ['*']);
@@ -210,5 +202,13 @@ trait ConfigurableModel
         $filter->build($builder, $string);
 
         return $builder;
+    }
+
+    /**
+     * @inherit
+     */
+    protected function newMorphTo(Builder $query, Model $parent, $foreignKey, $ownerKey, $type, $relation)
+    {
+        return new MorphTo(...func_get_args());
     }
 }
