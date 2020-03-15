@@ -21,7 +21,6 @@ use Railken\EloquentMapper\With\WithCollection;
 use Railken\EloquentMapper\With\WithItem;
 use Railken\Lem\Attributes;
 use Railken\Lem\Contracts\EntityContract;
-use Spatie\ResponseCache\Facades\ResponseCache;
 
 abstract class RestManagerController extends Controller implements CacheableContract
 {
@@ -124,22 +123,6 @@ abstract class RestManagerController extends Controller implements CacheableCont
 
             $this->initializeQueryable($request);
             $this->initializeFillable($request);
-        }
-
-        if ($this->cached) {
-            $entity = $this->manager->getEntity();
-
-            $entity::created(function () {
-                ResponseCache::clear();
-            });
-
-            $entity::updated(function () {
-                ResponseCache::clear();
-            });
-
-            $entity::deleted(function () {
-                ResponseCache::clear();
-            });
         }
     }
 
