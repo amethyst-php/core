@@ -68,10 +68,6 @@ abstract class RestManagerController extends Controller implements CacheableCont
     public function __construct()
     {
         $this->initializeManager();
-
-        if ($this->cached) {
-            $this->middleware(\Spatie\ResponseCache\Middlewares\CacheResponse::class);
-        }
     }
 
     public function initializeManager()

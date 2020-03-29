@@ -1,6 +1,7 @@
 <?php
 
 namespace Amethyst\Core\Http\Controllers;
+use Illuminate\Http\Request;
 
 class BasicController extends RestManagerController
 {
@@ -8,14 +9,17 @@ class BasicController extends RestManagerController
 
     public function __construct()
     {
-        $this->middleware(function ($request, $next) {
-            try {
-                $this->manager = app('amethyst')->findManagerByName($request->route('name'));
-            } catch (\Amethyst\Core\Exceptions\DataNotFoundException $e) {
-                abort(404);
-            }
 
-            return $next($request);
-        });
+    }
+    
+    public function bootstrap(Request $request)
+    {
+        try {
+            $this->manager = app('amethyst')->findManagerByName($request->route('name'));
+        } catch (\Amethyst\Core\Exceptions\DataNotFoundException $e) {
+            abort(404);
+        }
+
+        parent::bootstrap($request);
     }
 }
