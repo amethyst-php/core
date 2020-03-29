@@ -1,6 +1,7 @@
 <?php
 
 namespace Amethyst\Core\Http\Controllers;
+
 use Illuminate\Http\Request;
 
 class BasicController extends RestManagerController
@@ -9,9 +10,8 @@ class BasicController extends RestManagerController
 
     public function __construct()
     {
-
     }
-    
+
     public function bootstrap(Request $request)
     {
         try {
