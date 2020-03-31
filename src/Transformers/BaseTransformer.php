@@ -89,8 +89,6 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
      */
     public function resolveInclude(string $relationName, array $args)
     {
-        (new \Amethyst\Models\Relation())->newQuery()->with('target')->get();
-
         $entity = $args[0];
 
         $relation = $entity->{$relationName};
