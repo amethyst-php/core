@@ -141,7 +141,7 @@ abstract class RestManagerController extends Controller implements CacheableCont
         } else {
             $include = new WithCollection(array_map(function ($item) {
                 return new WithItem($item);
-            }, explode(',', $include)));
+            }, is_array($include) ? $include : explode(',', $include)));
         }
 
         $scope = new FilterScope();
