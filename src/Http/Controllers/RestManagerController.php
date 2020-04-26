@@ -115,7 +115,7 @@ abstract class RestManagerController extends Controller implements CacheableCont
     public function bootstrap(Request $request)
     {
         if ($this->manager) {
-            $this->manager->setAgent($this->getUser());
+            $this->manager = $this->manager->asAgent($this->getUser());
 
             $this->initializeQueryable($request);
             $this->initializeFillable($request);
@@ -132,7 +132,6 @@ abstract class RestManagerController extends Controller implements CacheableCont
     public function filterQuery($query, Request $request)
     {
         $include = $request->input('include');
-
         if (is_string($include) && is_array(json_decode($include, true)) && (json_last_error() == JSON_ERROR_NONE)) {
             $include = json_decode($include);
             $include = new WithCollection(array_map(function ($item) {
@@ -140,11 +139,22 @@ abstract class RestManagerController extends Controller implements CacheableCont
             }, $include));
         } else {
             $include = new WithCollection(array_map(function ($item) {
+
+                $jItem = json_decode($item);
+
+                if (json_last_error() == JSON_ERROR_NONE) {
+                    return new WithItem($jItem->name, $jItem->query);
+                }
+
                 return new WithItem($item);
             }, is_array($include) ? $include : explode(',', $include)));
         }
 
         $scope = new FilterScope();
+        $scope->setOnApply(function($query) {
+            $manager = app('amethyst')->findDataByModel($query->getModel())->asAgent($this->getUser());
+            $manager->getRepository()->applyScopes($query);
+        });
         $scope->apply($query, strval($request->input('query')), $include);
 
         $this->queryable = $scope->getKeys();
