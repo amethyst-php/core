@@ -17,9 +17,7 @@ class AmethystServiceProvider extends ServiceProvider
         $this->app->register(\Amethyst\Core\Providers\ApiServiceProvider::class);
         $this->app->register(\Railken\EloquentMapper\EloquentMapperServiceProvider::class);
         $this->app->bind(MapContract::class, Map::class);
-        $this->app->singleton('amethyst', function ($app) {
-            return new \Amethyst\Core\Helper();
-        });
+        $this->app->singleton('amethyst', \Amethyst\Core\Helper::class);
     }
 
     public function boot()
