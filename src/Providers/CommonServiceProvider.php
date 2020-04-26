@@ -100,8 +100,8 @@ class CommonServiceProvider extends ServiceProvider
         $directory = $this->getDirectory().'/../../resources/assets';
 
         $this->publishes([
-            $directory => public_path('assets/amethyst'),
-        ], 'public');
+            $directory => storage_path('assets/amethyst'),
+        ], 'assets');
     }
 
     /**
