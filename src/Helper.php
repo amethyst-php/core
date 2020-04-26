@@ -13,6 +13,8 @@ use Railken\Cacheable\CacheableContract;
 use Railken\Cacheable\CacheableTrait;
 use Railken\Lem\Contracts\AgentContract;
 use Railken\Lem\Contracts\ManagerContract;
+use Railken\EloquentMapper\Scopes\FilterScope;
+use Railken\EloquentMapper\Contracts\Map as MapContract;
 
 class Helper implements CacheableContract
 {
@@ -23,8 +25,9 @@ class Helper implements CacheableContract
     protected $dataIndexedByModel;
     protected $managers;
 
-    public function __construct()
+    public function __construct(MapContract $mapper)
     {
+        $this->mapper = $mapper;
         $this->config = new Collection();
         $this->ini();
     }
@@ -150,20 +153,14 @@ class Helper implements CacheableContract
     /*
      * Return data given model class
      *
-     * @param string $name
+     * @param Model $name
      * @param bool $exception
      *
      * @return array
      */
-    public function findDataByModel(string $class, bool $exception = false): ManagerContract
+    public function findDataByModel(Model $class, bool $exception = false): ManagerContract
     {
-        $data = $this->getDataIndexedByModel()[$class] ?? null;
-
-        if (!$data && $exception) {
-            throw new DataNotFoundException(sprintf('Missing %s', $name));
-        }
-
-        return $data;
+        return $this->get($this->mapper->modelToKey($class));
     }
 
     /*
@@ -243,5 +240,11 @@ class Helper implements CacheableContract
     public function getNameDataByModel(string $class): string
     {
         return class_exists($class) ? $this->tableize($class) : null;
+    }
+
+    public function filter($query, $str)
+    {
+        $scope = new FilterScope();
+        $scope->apply($query, $str);
     }
 }
