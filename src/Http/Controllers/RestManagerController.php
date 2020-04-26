@@ -139,7 +139,6 @@ abstract class RestManagerController extends Controller implements CacheableCont
             }, $include));
         } else {
             $include = new WithCollection(array_map(function ($item) {
-
                 $jItem = json_decode($item);
 
                 if (json_last_error() == JSON_ERROR_NONE) {
@@ -151,7 +150,7 @@ abstract class RestManagerController extends Controller implements CacheableCont
         }
 
         $scope = new FilterScope();
-        $scope->setOnApply(function($query) {
+        $scope->setOnApply(function ($query) {
             $manager = app('amethyst')->findDataByModel($query->getModel())->asAgent($this->getUser());
             $manager->getRepository()->applyScopes($query);
         });

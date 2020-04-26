@@ -11,10 +11,10 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Config;
 use Railken\Cacheable\CacheableContract;
 use Railken\Cacheable\CacheableTrait;
+use Railken\EloquentMapper\Contracts\Map as MapContract;
+use Railken\EloquentMapper\Scopes\FilterScope;
 use Railken\Lem\Contracts\AgentContract;
 use Railken\Lem\Contracts\ManagerContract;
-use Railken\EloquentMapper\Scopes\FilterScope;
-use Railken\EloquentMapper\Contracts\Map as MapContract;
 
 class Helper implements CacheableContract
 {
