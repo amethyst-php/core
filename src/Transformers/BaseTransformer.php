@@ -10,6 +10,7 @@ use League\Fractal\TransformerAbstract;
 use Railken\EloquentMapper\Contracts\Map as MapContract;
 use Railken\Lem\Contracts\EntityContract;
 use Railken\Lem\Contracts\ManagerContract;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class BaseTransformer extends TransformerAbstract implements TransformerContract
 {
@@ -120,7 +121,7 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
             return null;
         }
 
-        $transformer = $this->getTransformerByManager($relationName, $manager);
+        $transformer = $this->getTransformerByManager($entity, $relationName, $manager);
 
         $t = $this->$method(
             $relation,
@@ -131,13 +132,19 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
         return $t;
     }
 
-    public function getTransformerByManager($relationName, $manager)
+    public function getTransformerByManager($entity, $key, $manager)
     {
-        if (!isset($this->relationedTransformers[$relationName])) {
-            $this->relationedTransformers[$relationName] = new BaseTransformer($manager, $this->request);
+        $relationBuilder = $entity->$key();
+
+        if ($relationBuilder instanceof MorphTo) {
+            $key .= ".".$entity->{$relationBuilder->getMorphType()};
         }
 
-        return $this->relationedTransformers[$relationName];
+        if (!isset($this->relationedTransformers[$key])) {
+            $this->relationedTransformers[$key] = new BaseTransformer($manager, $this->request);
+        }
+
+        return $this->relationedTransformers[$key];
     }
 
     public function setSelectedAttributes(array $selectedAttributes = [])
@@ -171,6 +178,7 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
      */
     public function transform(EntityContract $entity)
     {
+        print_r(get_class($this->manager)."\n");
         $s = $this->manager->getSerializer()->serialize($entity, null)->toArray();
 
         return $s;
