@@ -178,7 +178,6 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
      */
     public function transform(EntityContract $entity)
     {
-        print_r(get_class($this->manager)."\n");
         $s = $this->manager->getSerializer()->serialize($entity, null)->toArray();
 
         return $s;
