@@ -4,13 +4,13 @@ namespace Amethyst\Core\Transformers;
 
 use Amethyst\Core\Contracts\TransformerContract;
 use Doctrine\Common\Inflector\Inflector;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use League\Fractal\TransformerAbstract;
 use Railken\EloquentMapper\Contracts\Map as MapContract;
 use Railken\Lem\Contracts\EntityContract;
 use Railken\Lem\Contracts\ManagerContract;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class BaseTransformer extends TransformerAbstract implements TransformerContract
 {
@@ -137,7 +137,7 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
         $relationBuilder = $entity->$key();
 
         if ($relationBuilder instanceof MorphTo) {
-            $key .= ".".$entity->{$relationBuilder->getMorphType()};
+            $key .= '.'.$entity->{$relationBuilder->getMorphType()};
         }
 
         if (!isset($this->relationedTransformers[$key])) {
