@@ -16,10 +16,7 @@ jobs:
       DB_DATABASE: laravel
       DB_USERNAME: root
       DB_PASSWORD: password
-      BROADCAST_DRIVER: log
-      CACHE_DRIVER: redis
-      QUEUE_CONNECTION: redis
-      SESSION_DRIVER: redis    
+      BROADCAST_DRIVER: log 
     services:
       mysql:
         image: mysql:5.7
@@ -57,13 +54,12 @@ jobs:
         run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       - name: Install Composer dependencies
         run: |
-            composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
-            composer require --dev amethyst/cli
-            composer require --dev "laravel/framework:${{ matrix.laravel }}" --no-update;
+          composer require --dev "laravel/framework:${{ matrix.laravel }}" --no-update
+          composer update --no-progress --no-suggest --prefer-dist --optimize-autoloader
       - name: Prepare the application
         run: |
           php -r "file_exists('.env') || copy('.env.example', '.env');"
       - name: Test
-        run: vendor/bin/amethyst test:phpunit --verbose
+        run: ./vendor/bin/phpunit --coverage-text --coverage-clover=build/logs/clover.xml
         env:
           DB_PORT: ${{ job.services.mysql.ports['3306'] }}
