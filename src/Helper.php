@@ -176,7 +176,7 @@ class Helper implements CacheableContract
         $data = $this->getData()[$name] ?? null;
 
         if (!$data && $exception) {
-            throw new DataNotFoundException(sprintf('Missing %s', $name));
+            throw new DataNotFoundException(sprintf('Missing `%s`', $name));
         }
 
         return $data;
