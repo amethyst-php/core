@@ -2,12 +2,11 @@
 
 namespace Amethyst\Core\Tests;
 
-use Amethyst\Core\Support\Router;
+use Amethyst\Core\Tests\App as App;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
-use Amethyst\Core\Tests\App as App;
 
 abstract class BaseTest extends \Orchestra\Testbench\TestCase
 {
