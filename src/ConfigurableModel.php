@@ -47,7 +47,6 @@ trait ConfigurableModel
         $this->table = $vars->get('table');
         $this->fillable = $vars->get('fillable');
         $this->casts = $vars->get('casts');
-        $this->dates = $vars->get('dates');
         $this->hidden = $vars->get('hidden');
     }
 
@@ -79,7 +78,6 @@ trait ConfigurableModel
         $attributes = collect($this->retrieveManager()->getAttributes());
 
         $vars->set('fillable', $this->retrieveAttributeFillable($attributes));
-        $vars->set('dates', $this->retrieveAttributeDates($attributes));
         $vars->set('casts', $this->retrieveAttributeCasts($attributes));
         $vars->set('hidden', $this->retrieveAttributeHidden($attributes));
 
@@ -125,22 +123,6 @@ trait ConfigurableModel
      *
      * @return array
      */
-    public function retrieveAttributeDates(Collection $attributes): array
-    {
-        return $attributes->filter(function ($attribute) {
-            return $attribute instanceof Attributes\DateTimeAttribute;
-        })->map(function ($attribute) {
-            return $attribute->getName();
-        })->toArray();
-    }
-
-    /**
-     * Initialize dates by attributes.
-     *
-     * @param Collection $attributes
-     *
-     * @return array
-     */
     public function retrieveAttributeCasts(Collection $attributes): array
     {
         return $attributes->mapWithKeys(function ($attribute) {
@@ -158,8 +140,12 @@ trait ConfigurableModel
                 return 'boolean';
             }
 
+            if ($attribute instanceof Attributes\DateAttribute) {
+                return 'date:'.$attribute->getFormat();
+            }
+
             if ($attribute instanceof Attributes\DateTimeAttribute) {
-                return 'datetime';
+                return 'datetime:'.$attribute->getFormat();
             }
 
             if ($attribute instanceof Attributes\NumberAttribute) {
