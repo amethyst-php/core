@@ -11,8 +11,7 @@ class BarSerializer extends Serializer
     /**
      * Serialize entity.
      *
-     * @param \Railken\Lem\Contracts\EntityContract $entity
-     * @param \Illuminate\Support\Collection        $select
+     * @param \Illuminate\Support\Collection $select
      *
      * @return \Railken\Bag
      */

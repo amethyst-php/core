@@ -2,33 +2,30 @@
 
 namespace Amethyst\Core\Tests\App\Models;
 
+use Amethyst\Core\ConfigurableModel;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 use Railken\Lem\Contracts\EntityContract;
 
 class Foo extends Model implements EntityContract
 {
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'foo';
+    use SoftDeletes;
+    use ConfigurableModel;
+    use Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
+     * Create a new Eloquent model instance.
      */
-    protected $fillable = [
-        'name',
-        'description',
-    ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function bar()
+    public function __construct(array $attributes = [])
     {
-        return $this->belongsTo(Bar::class);
+        $this->ini('amethyst.foo.data.foo');
+        parent::__construct($attributes);
+    }
+
+    public function bar(): BelongsTo
+    {
+        return $this->belongsTo(config('amethyst.bar.data.bar.model'));
     }
 }

@@ -12,12 +12,14 @@ class BarSchema extends Schema
      *
      * @var array
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return [
             Attributes\IdAttribute::make(),
-            Attributes\TextAttribute::make('name'),
-            Attributes\TextAttribute::make('description')->setMaxLength(4096),
+            Attributes\TextAttribute::make('name')
+                ->setRequired(true)
+                ->setUnique(true),
+            Attributes\LongTextAttribute::make('description'),
             Attributes\CreatedAtAttribute::make(),
             Attributes\UpdatedAtAttribute::make(),
             Attributes\DeletedAtAttribute::make(),

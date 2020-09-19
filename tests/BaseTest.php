@@ -3,11 +3,11 @@
 namespace Amethyst\Core\Tests;
 
 use Amethyst\Core\Support\Router;
-use Amethyst\Core\Tests\App\Controllers\FooController;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
+use Amethyst\Core\Tests\App as App;
 
 abstract class BaseTest extends \Orchestra\Testbench\TestCase
 {
@@ -24,7 +24,7 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
             $table->increments('id');
             $table->string('name')->nullable();
             $table->text('description')->nullable();
-            $table->integer('bar_id')->unsigned();
+            $table->integer('bar_id')->unsigned()->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -39,22 +39,12 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
             $table->softDeletes();
         });
 
-        Router::group('admin', ['as' => 'foo.', 'prefix' => 'foo'], function ($router) {
-            $controller = FooController::class;
-
-            $router->get('/', ['as' => 'index', 'uses' => $controller.'@index']);
-            $router->post('/', ['as' => 'create', 'uses' => $controller.'@create']);
-            $router->put('/{id}', ['as' => 'update', 'uses' => $controller.'@update']);
-            $router->delete('/{id}', ['as' => 'remove', 'uses' => $controller.'@remove']);
-            $router->get('/{id}', ['as' => 'show', 'uses' => $controller.'@show']);
-        });
-
         Route::fallback(function () {
             return response()->json(['message' => 'Not Found!'], 404);
         });
 
         Config::set('amethyst.foo.data.foo', [
-            'table'      => 'amethyst_foos',
+            'table'      => 'foo',
             'comment'    => 'Foo',
             'model'      => App\Models\Foo::class,
             'schema'     => App\Schemas\FooSchema::class,
@@ -67,7 +57,7 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
         ]);
 
         Config::set('amethyst.bar.data.bar', [
-            'table'      => 'amethyst_Bars',
+            'table'      => 'bar',
             'comment'    => 'Bar',
             'model'      => App\Models\Bar::class,
             'schema'     => App\Schemas\BarSchema::class,
@@ -87,6 +77,7 @@ abstract class BaseTest extends \Orchestra\Testbench\TestCase
     {
         return [
             \Amethyst\Core\Providers\AmethystServiceProvider::class,
+            App\Providers\FooServiceProvider::class,
         ];
     }
 }

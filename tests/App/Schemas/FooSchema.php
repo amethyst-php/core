@@ -9,21 +9,23 @@ use Railken\Lem\Schema;
 class FooSchema extends Schema
 {
     /**
-     * Get all attributes.
+     * Get all the attributes.
      *
-     * @return array
+     * @var array
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return [
             Attributes\IdAttribute::make(),
-            Attributes\TextAttribute::make('name'),
-            Attributes\TextAttribute::make('description')->setMaxLength(4096),
+            Attributes\TextAttribute::make('name')
+                ->setRequired(true),
+            Attributes\LongTextAttribute::make('description'),
             Attributes\BelongsToAttribute::make('bar_id')
                 ->setRelationName('bar')
                 ->setRelationManager(BarManager::class),
             Attributes\CreatedAtAttribute::make(),
             Attributes\UpdatedAtAttribute::make(),
+            Attributes\DeletedAtAttribute::make(),
         ];
     }
 }
