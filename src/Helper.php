@@ -24,6 +24,7 @@ class Helper implements CacheableContract
     protected $data;
     protected $dataIndexedByModel;
     protected $managers;
+    protected $mapper;
 
     public function __construct(MapContract $mapper)
     {
