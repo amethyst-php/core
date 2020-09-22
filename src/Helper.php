@@ -197,7 +197,7 @@ class Helper implements CacheableContract
         })->first();
 
         if (!$data && $exception) {
-            throw new DataNotFoundException(sprintf('Missing %s', $name));
+            throw new DataNotFoundException(sprintf('Missing %s', $tableName));
         }
 
         return $data;
