@@ -20,19 +20,24 @@ composer require amethyst/core
 
 The package will automatically register itself.
 
-## Why mapping is important
+## Mapping the hell out of it
 
-Amethyst takes a lot of advantages by mapping all models, relations and attributes, it does soo much that it's a requirement for every package:
+Amethyst takes a lot of advantages by mapping all models, relations and attributes; it does soo much that it's a requirement for every package:
 
 - Each instance of Model must be converted in a readable string (e.g. classname, or morph name) and viceversa.
 - Given an instance of Model it should be possible to retrieve all relations.
 - Given an instance of Model it should be possibile to retrieve all attributes.
 
+Note: It's important to notice that we are refering to an instance of Model instead of class of Model.
+
+#### What are the benefits then?
+
+Because having this kind of information will make a lot of things easy (for e.g. auto joins, creating views)
+
+#### How it's done and how extend it
+All amethyst packages are automatically mapped, that's because the mapping use the configuration under `amethyst` to retrieve all models 
+
 This is done by using the package [eloquent-mapper](https://github.com/railken/eloquent-mapper).
-
-Why then? Because it makes so much easy to use all of this information to build views, api, validation, filters, joins.
-
-The use of instance of Model instead of class of Model is also important, as there might be two instances of the same class that rapresent completely different Data.
 
 ## How interact with the data
 
