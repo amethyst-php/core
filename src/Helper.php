@@ -15,6 +15,7 @@ use Railken\EloquentMapper\Contracts\Map as MapContract;
 use Railken\EloquentMapper\Scopes\FilterScope;
 use Railken\Lem\Contracts\AgentContract;
 use Railken\Lem\Contracts\ManagerContract;
+use Illuminate\Support\Facades\Schema;
 
 class Helper implements CacheableContract
 {
@@ -247,5 +248,23 @@ class Helper implements CacheableContract
     {
         $scope = new FilterScope();
         $scope->apply($query, $str);
+    }
+
+    /**
+     * Check if all tables has been properly migrated
+     *
+     * @param string $path
+     *
+     * @return bool
+     */
+    public function hasAllTables(string $path): bool
+    {
+        foreach (array_keys(Config::get($path)) as $name) {
+            if (!Schema::hasTable(Config::get(sprintf('amethyst.action.data.%s.table', $name)))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
