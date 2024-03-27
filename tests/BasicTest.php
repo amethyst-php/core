@@ -6,7 +6,7 @@ use Amethyst\Core\Tests\App\Fakers\FooFaker;
 use Amethyst\Core\Tests\App\Managers\FooManager;
 use Railken\Lem\Support\Testing\TestableBaseTrait;
 
-class BasicTest extends BaseTest
+class BasicTest extends Base
 {
     use TestableBaseTrait;
 

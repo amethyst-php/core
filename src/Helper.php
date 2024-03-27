@@ -3,7 +3,7 @@
 namespace Amethyst\Core;
 
 use Amethyst\Core\Exceptions\DataNotFoundException;
-use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Inflector\InflectorFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Arr;
@@ -229,7 +229,7 @@ class Helper implements CacheableContract
      */
     public function tableize($obj): string
     {
-        return str_replace('_', '-', (new Inflector())->tableize((new \ReflectionClass($obj))->getShortName()));
+        return str_replace('_', '-', (InflectorFactory::create()->build())->tableize((new \ReflectionClass($obj))->getShortName()));
     }
 
     /**

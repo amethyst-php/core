@@ -3,7 +3,7 @@
 namespace Amethyst\Core\Transformers;
 
 use Amethyst\Core\Contracts\TransformerContract;
-use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Inflector\InflectorFactory;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -55,7 +55,7 @@ class BaseTransformer extends TransformerAbstract implements TransformerContract
     public function __construct(ManagerContract $manager, Request $request)
     {
         $this->manager = $manager;
-        $this->inflector = new Inflector();
+        $this->inflector = InflectorFactory::create()->build();
         $this->request = $request;
 
         $this->map = app(MapContract::class);

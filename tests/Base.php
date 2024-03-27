@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 
-abstract class BaseTest extends \Orchestra\Testbench\TestCase
+abstract class Base extends \Orchestra\Testbench\TestCase
 {
     /**
      * Setup the test environment.

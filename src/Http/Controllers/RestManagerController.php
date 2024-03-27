@@ -3,7 +3,7 @@
 namespace Amethyst\Core\Http\Controllers;
 
 use Amethyst\Core\Transformers\BaseTransformer;
-use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Inflector\InflectorFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -99,7 +99,7 @@ abstract class RestManagerController extends Controller implements CacheableCont
      */
     public function getResourceName()
     {
-        return $this->name !== null ? $this->name : str_replace('_', '-', (new Inflector())->tableize($this->getManager()->getName()));
+        return $this->name !== null ? $this->name : str_replace('_', '-', (InflectorFactory::create()->build())->tableize($this->getManager()->getName()));
     }
 
     /**

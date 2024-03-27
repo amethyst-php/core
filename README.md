@@ -7,8 +7,7 @@ This is the core of all Amethyst packages.
 
 # Requirements
 
-- PHP from 7.2 to 7.4
-- Laravel from 5.8 to 8.x
+- PHP from 8.1
 
 ## Installation
 

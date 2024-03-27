@@ -1,9 +1,9 @@
 vendor/
-var/cache
 \.php_cs\.cache
 build/
 \.env
 composer\.lock
-phpunit.xml
-
 .phpunit.result.cache
+phpunit.xml
+.php-cs-fixer.cache
+.phpunit.cache/test-results
