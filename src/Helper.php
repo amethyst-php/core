@@ -44,7 +44,7 @@ class Helper implements CacheableContract
         foreach (array_keys(Config::get('amethyst')) as $config) {
             foreach (Config::get('amethyst.'.$config.'.data', []) as $nameData => $data) {
                 if ($manager = Arr::get($data, 'manager')) {
-                    $this->addData($nameData, new $manager());
+                    $this->addData($nameData, new $manager(null, false));
                 }
             }
         }
